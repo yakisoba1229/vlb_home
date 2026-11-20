@@ -4,61 +4,133 @@
     "id": "player001",
     "name": "飯塚",
     "position": ["捕手"],
-    "image": "pose_9.png"
+    "image": "pose_9.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "左",
+    "profile": "チームを代表する主力打者。",
+    "abilities": {},
+    "stats": {},
+    "messages": [
+      "今日も応援よろしく！",
+      "いい試合にしよう。"
+    ]
   },
   {
     "id": "player002",
-    "name": "選手2",
-    "position": ["中堅手", "右翼手"],
-    "image": "pose_1.png"
+    "name": "選手02",
+    "position": ["中堅手"],
+    "image": "pose_1.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "右",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player003",
-    "name": "選手3",
+    "name": "選手03",
     "position": ["左翼手"],
-    "image": "pose_2.png"
+    "image": "pose_2.png",
+    "type": "野手",
+    "throwingHand": "左",
+    "battingHand": "左",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player004",
-    "name": "選手4",
+    "name": "選手04",
     "position": ["右翼手"],
-    "image": "pose_3.png"
+    "image": "pose_3.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "両",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player005",
-    "name": "選手5",
-    "position": ["遊撃手"],
-    "image": "pose_4.png"
+    "name": "選手05",
+    "position": ["遊撃手", "二塁手"],
+    "image": "pose_4.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "右",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player006",
-    "name": "選手6",
+    "name": "選手06",
     "position": ["二塁手"],
-    "image": "pose_5.png"
+    "image": "pose_5.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "左",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player007",
-    "name": "選手7",
+    "name": "選手07",
     "position": ["投手"],
-    "image": "pose_6.png"
+    "image": "pose_6.png",
+    "type": "投手",
+    "throwingHand": "左",
+    "battingHand": "右",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player008",
-    "name": "選手8",
+    "name": "選手08",
     "position": ["三塁手"],
-    "image": "pose_7.png"
+    "image": "pose_7.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "右",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player009",
-    "name": "選手9",
+    "name": "選手09",
     "position": ["一塁手"],
-    "image": "pose_8.png"
+    "image": "pose_8.png",
+    "type": "野手",
+    "throwingHand": "左",
+    "battingHand": "左",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   },
   {
     "id": "player010",
     "name": "選手10",
-    "position": ["捕手"],
-    "image": "pose_9.png"
+    "position": ["捕手", "一塁手"],
+    "image": "pose_9.png",
+    "type": "野手",
+    "throwingHand": "右",
+    "battingHand": "右",
+    "profile": "",
+    "abilities": {},
+    "stats": {},
+    "messages": []
   }
 ]
-
