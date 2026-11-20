@@ -1,4 +1,3 @@
-
 const toast = document.getElementById('toast');
 let toastTimer;
 
