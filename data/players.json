@@ -1,1 +1,64 @@
 
+[
+  {
+    "id": "player001",
+    "name": "飯塚",
+    "position": ["捕手"],
+    "image": "pose_9.png"
+  },
+  {
+    "id": "player002",
+    "name": "選手2",
+    "position": ["中堅手", "右翼手"],
+    "image": "pose_1.png"
+  },
+  {
+    "id": "player003",
+    "name": "選手3",
+    "position": ["左翼手"],
+    "image": "pose_2.png"
+  },
+  {
+    "id": "player004",
+    "name": "選手4",
+    "position": ["右翼手"],
+    "image": "pose_3.png"
+  },
+  {
+    "id": "player005",
+    "name": "選手5",
+    "position": ["遊撃手"],
+    "image": "pose_4.png"
+  },
+  {
+    "id": "player006",
+    "name": "選手6",
+    "position": ["二塁手"],
+    "image": "pose_5.png"
+  },
+  {
+    "id": "player007",
+    "name": "選手7",
+    "position": ["投手"],
+    "image": "pose_6.png"
+  },
+  {
+    "id": "player008",
+    "name": "選手8",
+    "position": ["三塁手"],
+    "image": "pose_7.png"
+  },
+  {
+    "id": "player009",
+    "name": "選手9",
+    "position": ["一塁手"],
+    "image": "pose_8.png"
+  },
+  {
+    "id": "player010",
+    "name": "選手10",
+    "position": ["捕手"],
+    "image": "pose_9.png"
+  }
+]
+
