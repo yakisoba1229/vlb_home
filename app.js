@@ -8,7 +8,7 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
-// ポジションと球場内の配置クラス
+// 球場の守備位置
 const positions = [
   { name: '中堅手', className: 'p-cf' },
   { name: '左翼手', className: 'p-lf' },
@@ -21,10 +21,18 @@ const positions = [
   { name: '捕手', className: 'p-c' }
 ];
 
-// ランダムに選手を選ぶ
-function randomPlayer(list) {
-  return list[Math.floor(Math.random() * list.length)];
-}
+// 守備位置に固定する選手ID
+const fixedPlayers = {
+  '捕手': 'player001',
+  '一塁手': 'player002',
+  '中堅手': 'player003',
+  '左翼手': 'player004',
+  '右翼手': 'player005',
+  '遊撃手': 'player006',
+  '二塁手': 'player007',
+  '三塁手': 'player008',
+  '投手': 'player009'
+};
 
 // 選手を球場に配置
 function createPlayer(player, position, usedPlayers) {
@@ -51,36 +59,39 @@ function createPlayer(player, position, usedPlayers) {
   usedPlayers.add(player.id);
 }
 
-// 選手データを読み込んで配置
+// 選手データを読み込んで固定配置
 async function loadPlayers() {
   try {
     const response = await fetch('data/players.json');
-    if (!response.ok) throw new Error('選手データの読み込みに失敗');
+    if (!response.ok) {
+      throw new Error('選手データの読み込みに失敗');
+    }
 
     const players = await response.json();
     const usedPlayers = new Set();
 
-    // 各ポジションに選手を配置
+    // 指定された選手を各守備位置に配置
     positions.forEach(position => {
-      const candidates = players.filter(player =>
-        player.position.includes(position.name) &&
-        !usedPlayers.has(player.id)
-      );
+      const playerId = fixedPlayers[position.name];
+      const player = players.find(p => p.id === playerId);
 
-      if (candidates.length === 0) return;
+      if (!player) {
+        console.warn(`${position.name}の選手が見つかりません`);
+        return;
+      }
 
-      const selected = randomPlayer(candidates);
-      createPlayer(selected, position, usedPlayers);
+      createPlayer(player, position, usedPlayers);
     });
 
-    // ベンチに残り選手から1人配置
-    const benchCandidates = players.filter(player =>
-      !usedPlayers.has(player.id)
-    );
+    // ベンチ選手
+    const benchPlayer = players.find(p => p.id === 'player010');
 
-    if (benchCandidates.length > 0) {
-      const selected = randomPlayer(benchCandidates);
-      createPlayer(selected, { name: 'ベンチ', className: 'p-bench' }, usedPlayers);
+    if (benchPlayer) {
+      createPlayer(
+        benchPlayer,
+        { name: 'ベンチ', className: 'p-bench' },
+        usedPlayers
+      );
     }
 
   } catch (error) {
