@@ -29,6 +29,7 @@ body {
   box-shadow: 0 0 30px #0001;
 }
 
+/* ヘッダー */
 .topbar {
   display: flex;
   align-items: center;
@@ -73,6 +74,7 @@ body {
   padding: 8px 12px;
 }
 
+/* 球場 */
 .stadium-wrap {
   flex: 1;
   min-height: 0;
@@ -94,271 +96,70 @@ body {
   overflow: hidden;
 }
 
-/* 選手本体 */
+/* 選手共通 */
 .player {
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: clamp(48px, 11vw, 82px);
   transform: translate(-50%, -75%);
-  translate: 0 0;
-  rotate: 0deg;
-  width: clamp(34px, 7vw, 68px);
   cursor: pointer;
-  transform-origin: center bottom;
-  will-change: translate, rotate;
+  z-index: 3;
 }
 
 .player img {
+  display: block;
   width: 100%;
   height: auto;
   object-fit: contain;
   filter: drop-shadow(0 2px 2px #0006);
 }
 
-.player span {
+.player-name {
   margin-top: -2px;
   font-size: clamp(7px, 1.3vw, 11px);
   white-space: nowrap;
   color: #fff;
   background: #123d2cdd;
-  border: 1px solid #e7c35a;
+  border: 1px solid var(--gold);
   border-radius: 20px;
   padding: 1px 5px;
   text-shadow: 0 1px 1px #000;
 }
 
-/* 守備位置 */
-.p-cf {
-  left: 50%;
-  top: 30%;
+/* スタメン */
+.field-player {
+  width: clamp(48px, 11vw, 82px);
+  z-index: 4;
 }
 
-.p-lf {
-  left: 28%;
-  top: 36%;
+/* スタメン以外：約半分 */
+.bench-player,
+.bullpen-player,
+.batter-player {
+  width: clamp(24px, 5.5vw, 41px);
+  z-index: 3;
 }
 
-.p-rf {
-  left: 72%;
-  top: 35%;
+.bench-player .player-name,
+.bullpen-player .player-name,
+.batter-player .player-name {
+  font-size: clamp(6px, 1vw, 9px);
+  padding: 1px 3px;
 }
 
-.p-ss {
-  left: 36%;
-  top: 52%;
+/* ベンチ・ブルペン・バッターの表示をスタメンより前に */
+.bench-player {
+  z-index: 2;
 }
 
-.p-2b {
-  left: 63%;
-  top: 51%;
+.bullpen-player {
+  z-index: 2;
 }
 
-.p-3b {
-  left: 25%;
-  top: 55%;
-}
-
-.p-1b {
-  left: 75%;
-  top: 55%;
-}
-
-.p-p {
-  left: 50%;
-  top: 62%;
-}
-
-.p-c {
-  left: 50%;
-  top: 81%;
-}
-
-.p-bench {
-  left: 12%;
-  top: 68%;
-  width: clamp(26px, 5vw, 48px);
-}
-
-/* =================================
-   待機モーション
-   選手ごとに動きを分ける
-================================= */
-
-/* 動きA：ゆっくり左右に重心移動 */
-.idle-a {
-  animation: idleA 5.2s ease-in-out infinite;
-}
-
-/* 動きB：少し大きめに体を傾ける */
-.idle-b {
-  animation: idleB 6.3s ease-in-out infinite;
-}
-
-/* 動きC：重心移動と軽い上下動 */
-.idle-c {
-  animation: idleC 4.8s ease-in-out infinite;
-}
-
-/* 動きD：ゆったり控えめ */
-.idle-d {
-  animation: idleD 7.1s ease-in-out infinite;
-}
-
-/* 選手ごとに動くタイミングを変える */
-.p-cf {
-  animation-delay: -2.1s;
-}
-
-.p-lf {
-  animation-delay: -4.6s;
-}
-
-.p-rf {
-  animation-delay: -1.3s;
-}
-
-.p-ss {
-  animation-delay: -5.7s;
-}
-
-.p-2b {
-  animation-delay: -3.2s;
-}
-
-.p-3b {
-  animation-delay: -0.8s;
-}
-
-.p-1b {
-  animation-delay: -6.1s;
-}
-
-.p-p {
-  animation-delay: -2.8s;
-}
-
-.p-c {
-  animation-delay: -3.5s;
-}
-
-.p-bench {
-  animation-delay: -3.9s;
-}
-
-/* 動きA */
-@keyframes idleA {
-  0%, 100% {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-
-  25% {
-    translate: 2.5px -0.5px;
-    rotate: 1.2deg;
-  }
-
-  50% {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-
-  75% {
-    translate: -2.5px 0.5px;
-    rotate: -1.2deg;
-  }
-}
-
-/* 動きB */
-@keyframes idleB {
-  0%, 100% {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-
-  30% {
-    translate: -3px -1px;
-    rotate: -1.5deg;
-  }
-
-  60% {
-    translate: 2px 0.5px;
-    rotate: 1deg;
-  }
-
-  80% {
-    translate: 1.5px 0;
-    rotate: 0.8deg;
-  }
-}
-
-/* 動きC */
-@keyframes idleC {
-  0%, 100% {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-
-  35% {
-    translate: 2.5px -1.5px;
-    rotate: 1.4deg;
-  }
-
-  65% {
-    translate: -2.5px 0.5px;
-    rotate: -1.2deg;
-  }
-}
-
-/* 動きD */
-@keyframes idleD {
-  0%, 100% {
-    translate: 0 0;
-    rotate: 0deg;
-  }
-
-  40% {
-    translate: -1.8px -0.8px;
-    rotate: -0.9deg;
-  }
-
-  75% {
-    translate: 1.8px 0.5px;
-    rotate: 0.9deg;
-  }
-}
-
-/* 動きを抑える設定が有効な端末への配慮 */
-@media (prefers-reduced-motion: reduce) {
-  .player {
-    animation: none !important;
-    translate: 0 0 !important;
-    rotate: 0deg !important;
-    will-change: auto;
-  }
-}
-
-/* PC・タブレット向け調整 */
-@media (min-width: 700px) {
-  .stadium-wrap {
-    padding: 14px;
-  }
-
-  .stadium {
-    border-radius: 14px;
-    max-height: calc(100vh - 150px);
-    width: auto;
-    height: min(78vh, 760px);
-    aspect-ratio: 1 / 1;
-  }
-
-  .bottom-nav {
-    padding: 10px;
-  }
-
-  .topbar {
-    padding: 14px 22px;
-  }
+.batter-player {
+  z-index: 3;
 }
 
 /* 下部メニュー */
@@ -416,83 +217,49 @@ body {
   opacity: 1;
 }
 
-/* 選手プレート共通 */
-.player {
-  position: absolute;
-  width: clamp(42px, 11vw, 76px);
-  display: block;
-  transform: translate(-50%, -50%);
-  animation: none !important;
-  cursor: pointer;
-  z-index: 3;
+/* PC・タブレット */
+@media (min-width: 700px) {
+  .stadium-wrap {
+    padding: 14px;
+  }
+
+  .stadium {
+    border-radius: 14px;
+    max-height: calc(100vh - 150px);
+    width: auto;
+    height: min(78vh, 760px);
+    aspect-ratio: 1 / 1;
+  }
+
+  .bottom-nav {
+    padding: 10px;
+  }
+
+  .topbar {
+    padding: 14px 22px;
+  }
 }
 
-.player img {
-  display: block;
-  width: 100%;
-  height: auto;
-  object-fit: contain;
-  filter: drop-shadow(0 1px 2px #0005);
-}
-
-.player .player-name {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 76%;
-  transform: translate(-50%, -50%);
-  margin: 0;
-  padding: 0;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  color: #111;
-  text-align: center;
-  font-size: clamp(7px, 1.8vw, 12px);
-  font-weight: 900;
-  line-height: 1.1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  pointer-events: none;
-  text-shadow: none;
-}
-
-/* 守備選手 */
-.field-player {
-  width: clamp(48px, 12vw, 82px);
-  z-index: 3;
-}
-
-/* ベンチ */
-.bench-player {
-  width: clamp(38px, 9vw, 62px);
-  z-index: 2;
-}
-
-/* ブルペン */
-.bullpen-player {
-  width: clamp(42px, 10vw, 68px);
-  z-index: 2;
-}
-
-/* バッターズサークル */
-.batter-player {
-  width: clamp(50px, 12vw, 82px);
-  z-index: 5;
-}
-
-/* スマホでの名前視認性 */
+/* スマートフォン */
 @media (max-width: 500px) {
-  .player .player-name {
-    font-size: 8px;
+  .field-player {
+    width: 11vw;
   }
 
-  .bench-player {
-    width: 42px;
+  .bench-player,
+  .bullpen-player,
+  .batter-player {
+    width: 5.5vw;
   }
 
-  .bullpen-player {
-    width: 46px;
+  .field-player .player-name {
+    font-size: 7px;
+  }
+
+  .bench-player .player-name,
+  .bullpen-player .player-name,
+  .batter-player .player-name {
+    font-size: 6px;
+    padding: 1px 2px;
   }
 }
