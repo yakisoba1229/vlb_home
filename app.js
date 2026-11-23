@@ -10,10 +10,11 @@ function showToast(message) {
   toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
+// 守備位置
 const fieldPositions = [
-  { code: 'CF', left: 50, top: 27 },
-  { code: 'LF', left: 27, top: 35 },
-  { code: 'RF', left: 73, top: 35 },
+  { code: 'CF', left: 51, top: 36 },
+  { code: 'LF', left: 27, top: 42 },
+  { code: 'RF', left: 78, top: 42 },
   { code: 'SS', left: 38, top: 51 },
   { code: '2B', left: 62, top: 51 },
   { code: '3B', left: 25, top: 57 },
@@ -86,7 +87,7 @@ function createLineup(players) {
   return solve([...fieldPositions], [...players]) ? result : null;
 }
 
-// プレート画像名を決定
+// プレート画像の種類
 function getPlate(player) {
   const group = position => {
     if (position === 'P') return 'p';
@@ -121,6 +122,7 @@ function getPlate(player) {
   return 'i';
 }
 
+// 選手表示
 function addPlayer(player, left, top, area = '') {
   const div = document.createElement('div');
   div.className = `player ${area}`;
@@ -141,10 +143,9 @@ function addPlayer(player, left, top, area = '') {
   label.className = 'player-name';
   label.textContent = player.n;
 
-  // 名前の長さに応じて文字サイズを変更
-  if (player.n.length >= 9) {
+  if (player.n.length >= 8) {
     label.classList.add('name-very-long');
-  } else if (player.n.length >= 6) {
+  } else if (player.n.length >= 5) {
     label.classList.add('name-long');
   }
 
@@ -159,74 +160,97 @@ function addPlayer(player, left, top, area = '') {
 
 function shuffle(list) {
   const a = [...list];
+
   for (let i = a.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     [a[i], a[j]] = [a[j], a[i]];
   }
+
   return a;
 }
 
-// ベンチ：左右に分けて最大5人ずつ
+// ベンチ：黒点に沿った左右5人ずつの配置
+const benchLeftPositions = [
+  [7, 63],
+  [10, 68],
+  [16, 73],
+  [20, 77],
+  [25, 82]
+];
+
+const benchRightPositions = [
+  [90, 65],
+  [87, 69],
+  [85, 73],
+  [81, 77],
+  [75, 82]
+];
+
 function createBench(players) {
   const shuffled = shuffle(players);
-  const left = shuffled.slice(0, 5);
-  const right = shuffled.slice(5, 10);
+  const left = [];
+  const right = [];
 
-  function placeSide(list, side) {
-    const x = side === 'left' ? 17 : 83;
+  // 左右交互に分配して人数差を小さくする
+  shuffled.forEach((player, i) => {
+    if (i % 2 === 0) left.push(player);
+    else right.push(player);
+  });
 
-    list.forEach((p, i) => {
-      const row = Math.floor(i / 2);
-      const col = i % 2;
-      addPlayer(p, x + (col ? 4 : -4), 83 + row * 4.5, 'bench-player');
-    });
-  }
+  left.slice(0, 5).forEach((player, i) => {
+    const [x, y] = benchLeftPositions[i];
+    addPlayer(player, x, y, 'bench-player');
+  });
 
-  placeSide(left, 'left');
-  placeSide(right, 'right');
+  right.slice(0, 5).forEach((player, i) => {
+    const [x, y] = benchRightPositions[i];
+    addPlayer(player, x, y, 'bench-player');
+  });
 }
 
-// ブルペン：左右に投手2人ずつ
+// ブルペン：左右のピンク色の区画
+const bullpenPositions = [
+  [7, 48],
+  [10, 52],
+  [96, 48],
+  [94, 52]
+];
+
 function createBullpen(players) {
   const selected = shuffle(players).slice(0, 4);
 
-  selected.forEach((p, i) => {
-    const leftSide = i < 2;
-    const slot = i % 2;
-
-    const x = leftSide
-      ? (slot === 0 ? 6 : 12)
-      : (slot === 0 ? 88 : 94);
-
-    const y = 40 + slot * 4;
-
-    addPlayer(p, x, y, 'bullpen-player');
+  selected.forEach((player, i) => {
+    const [x, y] = bullpenPositions[i];
+    addPlayer(player, x, y, 'bullpen-player');
   });
 
   return selected;
 }
 
+// バッターズサークル：左右の白い円
 function createBatterCircle(players) {
   if (!players.length) return null;
 
-  const p = shuffle(players)[0];
+  const player = shuffle(players)[0];
   const leftSide = Math.random() < 0.5;
 
   addPlayer(
-    p,
-    leftSide ? 30 : 70,
+    player,
+    leftSide ? 34 : 66,
     72,
     'batter-player'
   );
 
-  return p;
+  return player;
 }
 
 async function loadPlayers() {
   try {
-    const response = await fetch('data/players.json?v=20261124-3');
+    const response = await fetch('data/players.json?v=20261124-4');
 
-    if (!response.ok) throw new Error('players.json 読み込み失敗');
+    if (!response.ok) {
+      throw new Error('players.json 読み込み失敗');
+    }
 
     const players = await response.json();
     const stadium = document.getElementById('stadium');
@@ -241,28 +265,27 @@ async function loadPlayers() {
 
     const used = new Set();
 
-    // スタメン
+    // スタメン9人
     fieldPositions.forEach(pos => {
       const player = lineup.get(pos.code);
+
       if (player) {
         used.add(player);
         addPlayer(player, pos.left, pos.top, 'field-player');
       }
     });
 
-    // 残り選手
     let remaining = players.filter(p => !used.has(p));
 
-    // ブルペン投手
+    // ブルペン
     const pitchers = remaining.filter(p => p.m === 'P');
     const bullpen = createBullpen(pitchers);
     bullpen.forEach(p => used.add(p));
 
-    // 残り野手
+    // バッターズサークル
     remaining = players.filter(p => !used.has(p));
     const batters = remaining.filter(p => p.m !== 'P');
 
-    // バッターズサークル
     const batter = createBatterCircle(batters);
     if (batter) used.add(batter);
 
@@ -291,6 +314,7 @@ document.querySelectorAll('.bottom-nav button').forEach(button => {
 
 // メニューボタン
 const menuBtn = document.getElementById('menuBtn');
+
 if (menuBtn) {
   menuBtn.addEventListener('click', () => {
     showToast('メニューは今後追加します');
