@@ -1,17 +1,112 @@
-:root{--deep:#153d2b;--gold:#e7c35a;--cream:#f8f2df;--ink:#21342a}
-*{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:#e9e5d7;color:var(--ink)}
-.site{min-height:100svh;display:flex;flex-direction:column;max-width:900px;margin:auto;background:var(--cream);box-shadow:0 0 30px #0001}
-.topbar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--deep);color:#fff;z-index:2}.team-mark{width:44px;height:44px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:23px}.topbar h1{font-size:1.05rem;margin:0;font-weight:800;letter-spacing:.03em}.topbar p{font-size:.65rem;letter-spacing:.18em;margin:2px 0 0;color:#c9d8cc}.menu{margin-left:auto;background:#ffffff18;border:1px solid #ffffff30;color:white;border-radius:10px;font-size:20px;padding:8px 12px}
-.stadium-wrap{flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#102f22;padding:0;overflow:hidden}.stadium{position:relative;width:100%;aspect-ratio:1/1;background-image:url('assets/stadium.jpg');background-size:100% 100%;background-position:center;overflow:hidden}
+
+:root {
+  --deep: #153d2b;
+  --gold: #e7c35a;
+  --cream: #f8f2df;
+  --ink: #21342a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  font-family: system-ui, -apple-system, "Noto Sans JP", sans-serif;
+  background: #e9e5d7;
+  color: var(--ink);
+}
+
+.site {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  max-width: 900px;
+  margin: auto;
+  background: var(--cream);
+  box-shadow: 0 0 30px #0001;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--deep);
+  color: #fff;
+  z-index: 2;
+}
+
+.team-mark {
+  width: 44px;
+  height: 44px;
+  border: 2px solid var(--gold);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 23px;
+}
+
+.topbar h1 {
+  font-size: 1.05rem;
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: .03em;
+}
+
+.topbar p {
+  font-size: .65rem;
+  letter-spacing: .18em;
+  margin: 2px 0 0;
+  color: #c9d8cc;
+}
+
+.menu {
+  margin-left: auto;
+  background: #ffffff18;
+  border: 1px solid #ffffff30;
+  color: white;
+  border-radius: 10px;
+  font-size: 20px;
+  padding: 8px 12px;
+}
+
+.stadium-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #102f22;
+  padding: 0;
+  overflow: hidden;
+}
+
+.stadium {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background-image: url('assets/stadium.jpg');
+  background-size: 100% 100%;
+  background-position: center;
+  overflow: hidden;
+}
+
+/* 選手本体 */
 .player {
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   transform: translate(-50%, -75%);
+  translate: 0 0;
+  rotate: 0deg;
   width: clamp(34px, 7vw, 68px);
   cursor: pointer;
   transform-origin: center bottom;
+  will-change: translate, rotate;
 }
 
 .player img {
@@ -32,82 +127,135 @@
   padding: 1px 5px;
   text-shadow: 0 1px 1px #000;
 }
-.p-cf{left:50%;top:30%}.p-lf{left:28%;top:36%}.p-rf{left:72%;top:35%}.p-ss{left:36%;top:52%}.p-2b{left:63%;top:51%}.p-3b{left:25%;top:55%}.p-1b{left:75%;top:55%}.p-p{left:50%;top:62%}.p-c{left:50%;top:81%}.p-bench{left:12%;top:68%;width:clamp(26px,5vw,48px)}
-.bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2}.bottom-nav button{border:0;background:transparent;color:#66736a;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;font-size:18px}.bottom-nav small{font-size:10px}.bottom-nav button.active{color:var(--deep);font-weight:800}.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#183d2c;color:#fff;padding:10px 16px;border-radius:20px;box-shadow:0 5px 18px #0003;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center;font-size:13px;z-index:10}.toast.show{opacity:1}
-/* ===== 選手ごとの待機モーション ===== */
 
-.player {
-  animation: none;
-  transform-origin: center bottom;
-}
-
-/* 外野手：ゆったりした重心移動 */
+/* 守備位置 */
 .p-cf {
-  animation: idle1 5.8s ease-in-out infinite;
+  left: 50%;
+  top: 30%;
 }
 
 .p-lf {
-  animation: idle2 7.1s ease-in-out infinite;
+  left: 28%;
+  top: 36%;
 }
 
 .p-rf {
-  animation: idle3 6.3s ease-in-out infinite;
+  left: 72%;
+  top: 35%;
 }
 
-/* 内野手：少し動きを強める */
 .p-ss {
-  animation: idle2 5.5s ease-in-out infinite;
+  left: 36%;
+  top: 52%;
 }
 
 .p-2b {
-  animation: idle1 6.7s ease-in-out infinite;
+  left: 63%;
+  top: 51%;
 }
 
 .p-3b {
-  animation: idle3 5.9s ease-in-out infinite;
+  left: 25%;
+  top: 55%;
 }
 
 .p-1b {
-  animation: idle2 7.3s ease-in-out infinite;
+  left: 75%;
+  top: 55%;
 }
 
-/* 投手：落ち着いた動き */
 .p-p {
-  animation: idle1 6.9s ease-in-out infinite;
+  left: 50%;
+  top: 62%;
 }
 
-/* 捕手：少し大きめの重心移動 */
 .p-c {
-  animation: idle3 5.4s ease-in-out infinite;
+  left: 50%;
+  top: 81%;
 }
 
-/* 控え：控えめな動き */
 .p-bench {
-  animation: idle2 7.0s ease-in-out infinite;
+  left: 12%;
+  top: 68%;
+  width: clamp(26px, 5vw, 48px);
 }
 
-/* 動きのタイミングを個別にずらす */
-.p-cf { animation-delay: -2.1s; }
-.p-lf { animation-delay: -4.6s; }
-.p-rf { animation-delay: -1.3s; }
-.p-ss { animation-delay: -5.7s; }
-.p-2b { animation-delay: -3.2s; }
-.p-3b { animation-delay: -0.8s; }
-.p-1b { animation-delay: -6.1s; }
-.p-p  { animation-delay: -2.8s; }
-.p-c  { animation-delay: -3.5s; }
-.p-bench { animation-delay: -3.9s; }
+/* =================================
+   待機モーション
+   選手ごとに動きを分ける
+================================= */
 
-/* 左右に重心移動 */
-@keyframes idle1 {
+/* 動きA：ゆっくり左右に重心移動 */
+.idle-a {
+  animation: idleA 5.2s ease-in-out infinite;
+}
+
+/* 動きB：少し大きめに体を傾ける */
+.idle-b {
+  animation: idleB 6.3s ease-in-out infinite;
+}
+
+/* 動きC：重心移動と軽い上下動 */
+.idle-c {
+  animation: idleC 4.8s ease-in-out infinite;
+}
+
+/* 動きD：ゆったり控えめ */
+.idle-d {
+  animation: idleD 7.1s ease-in-out infinite;
+}
+
+/* 選手ごとに動くタイミングを変える */
+.p-cf {
+  animation-delay: -2.1s;
+}
+
+.p-lf {
+  animation-delay: -4.6s;
+}
+
+.p-rf {
+  animation-delay: -1.3s;
+}
+
+.p-ss {
+  animation-delay: -5.7s;
+}
+
+.p-2b {
+  animation-delay: -3.2s;
+}
+
+.p-3b {
+  animation-delay: -0.8s;
+}
+
+.p-1b {
+  animation-delay: -6.1s;
+}
+
+.p-p {
+  animation-delay: -2.8s;
+}
+
+.p-c {
+  animation-delay: -3.5s;
+}
+
+.p-bench {
+  animation-delay: -3.9s;
+}
+
+/* 動きA */
+@keyframes idleA {
   0%, 100% {
     translate: 0 0;
     rotate: 0deg;
   }
 
   25% {
-    translate: 2px -0.5px;
-    rotate: 1deg;
+    translate: 2.5px -0.5px;
+    rotate: 1.2deg;
   }
 
   50% {
@@ -116,70 +264,154 @@
   }
 
   75% {
-    translate: -2px 0.5px;
-    rotate: -0.8deg;
+    translate: -2.5px 0.5px;
+    rotate: -1.2deg;
   }
 }
 
-/* 逆方向の重心移動 */
-@keyframes idle2 {
+/* 動きB */
+@keyframes idleB {
   0%, 100% {
     translate: 0 0;
     rotate: 0deg;
   }
 
   30% {
-    translate: -2.5px -0.8px;
-    rotate: -1.2deg;
+    translate: -3px -1px;
+    rotate: -1.5deg;
   }
 
   60% {
-    translate: 1.5px 0.5px;
-    rotate: 0.7deg;
+    translate: 2px 0.5px;
+    rotate: 1deg;
   }
 
   80% {
-    translate: 2px 0;
-    rotate: 0.9deg;
+    translate: 1.5px 0;
+    rotate: 0.8deg;
   }
 }
 
-/* 上下動を少し混ぜた重心移動 */
-@keyframes idle3 {
+/* 動きC */
+@keyframes idleC {
   0%, 100% {
     translate: 0 0;
     rotate: 0deg;
   }
 
   35% {
-    translate: 2px -1.5px;
-    rotate: 1.2deg;
+    translate: 2.5px -1.5px;
+    rotate: 1.4deg;
   }
 
   65% {
-    translate: -2px 0.5px;
-    rotate: -1deg;
+    translate: -2.5px 0.5px;
+    rotate: -1.2deg;
   }
 }
 
-/* 動きを抑える設定が有効な場合 */
+/* 動きD */
+@keyframes idleD {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+
+  40% {
+    translate: -1.8px -0.8px;
+    rotate: -0.9deg;
+  }
+
+  75% {
+    translate: 1.8px 0.5px;
+    rotate: 0.9deg;
+  }
+}
+
+/* 動きを抑える設定が有効な端末への配慮 */
 @media (prefers-reduced-motion: reduce) {
   .player {
     animation: none !important;
     translate: 0 0 !important;
     rotate: 0deg !important;
+    will-change: auto;
   }
 }
-  .player {
-    animation: none !important;
-    translate: 0 0 !important;
-    rotate: 0deg !important;
+
+/* PC・タブレット向け調整 */
+@media (min-width: 700px) {
+  .stadium-wrap {
+    padding: 14px;
+  }
+
+  .stadium {
+    border-radius: 14px;
+    max-height: calc(100vh - 150px);
+    width: auto;
+    height: min(78vh, 760px);
+    aspect-ratio: 1 / 1;
+  }
+
+  .bottom-nav {
+    padding: 10px;
+  }
+
+  .topbar {
+    padding: 14px 22px;
   }
 }
-  .player {
-    animation: none !important;
-    translate: 0 0 !important;
-    rotate: 0deg !important;
-  }
+
+/* 下部メニュー */
+.bottom-nav {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  padding: 7px 4px max(8px, env(safe-area-inset-bottom));
+  background: #fff;
+  border-top: 1px solid #d6d0bd;
+  z-index: 2;
 }
-@media(min-width:700px){.stadium-wrap{padding:14px}.stadium{border-radius:14px;max-height:calc(100vh - 150px);width:auto;height:min(78vh,760px);aspect-ratio:1/1}.bottom-nav{padding:10px}.topbar{padding:14px 22px}}
+
+.bottom-nav button {
+  border: 0;
+  background: transparent;
+  color: #66736a;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  font-size: 18px;
+}
+
+.bottom-nav small {
+  font-size: 10px;
+}
+
+.bottom-nav button.active {
+  color: var(--deep);
+  font-weight: 800;
+}
+
+/* 通知 */
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 82px;
+  transform: translateX(-50%);
+  background: #183d2c;
+  color: #fff;
+  padding: 10px 16px;
+  border-radius: 20px;
+  box-shadow: 0 5px 18px #0003;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s;
+  max-width: 90%;
+  text-align: center;
+  font-size: 13px;
+  z-index: 10;
+}
+
+.toast.show {
+  opacity: 1;
+}
