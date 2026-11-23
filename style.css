@@ -416,18 +416,13 @@ body {
   opacity: 1;
 }
 
-/* =================================
-   ゲーム内選手プレート表示
-================================= */
-
+/* 選手プレート共通 */
 .player {
-  width: clamp(48px, 13vw, 90px);
+  position: absolute;
+  width: clamp(42px, 11vw, 76px);
   display: block;
   transform: translate(-50%, -50%);
-  transform-origin: center center;
   animation: none !important;
-  translate: none !important;
-  rotate: none !important;
   cursor: pointer;
   z-index: 3;
 }
@@ -437,55 +432,67 @@ body {
   width: 100%;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px #0007);
+  filter: drop-shadow(0 1px 2px #0005);
 }
 
 .player .player-name {
   position: absolute;
   left: 50%;
   top: 50%;
+  width: 76%;
   transform: translate(-50%, -50%);
   margin: 0;
-  padding: 0 2px;
-  width: 75%;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  color: #111;
+  text-align: center;
+  font-size: clamp(7px, 1.8vw, 12px);
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  text-align: center;
-  font-size: clamp(7px, 2vw, 12px);
-  font-weight: 800;
-  line-height: 1.2;
-  color: #111;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
-  text-shadow: none;
   pointer-events: none;
+  text-shadow: none;
 }
 
-/* ベンチ・ブルペン・バッターズサークル */
-.player.p-extra {
-  width: clamp(46px, 12vw, 76px);
-  z-index: 4;
+/* 守備選手 */
+.field-player {
+  width: clamp(48px, 12vw, 82px);
+  z-index: 3;
 }
 
-.player.p-bench {
-  opacity: .95;
+/* ベンチ */
+.bench-player {
+  width: clamp(38px, 9vw, 62px);
+  z-index: 2;
 }
 
-.player.p-bullpen {
-  width: clamp(44px, 11vw, 70px);
+/* ブルペン */
+.bullpen-player {
+  width: clamp(42px, 10vw, 68px);
+  z-index: 2;
 }
 
-.player.p-batter {
-  width: clamp(52px, 13vw, 84px);
+/* バッターズサークル */
+.batter-player {
+  width: clamp(50px, 12vw, 82px);
   z-index: 5;
 }
 
-/* プレートは静止させる */
-@media (prefers-reduced-motion: no-preference) {
-  .player {
-    animation: none !important;
+/* スマホでの名前視認性 */
+@media (max-width: 500px) {
+  .player .player-name {
+    font-size: 8px;
+  }
+
+  .bench-player {
+    width: 42px;
+  }
+
+  .bullpen-player {
+    width: 46px;
   }
 }
-
