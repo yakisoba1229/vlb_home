@@ -206,7 +206,6 @@ function createBullpen(players) {
   return selected;
 }
 
-// バッターズサークル：左右どちらかに1人
 function createBatterCircle(players) {
   if (!players.length) return null;
 
@@ -215,8 +214,8 @@ function createBatterCircle(players) {
 
   addPlayer(
     p,
-    leftSide ? 28 : 72,
-    59,
+    leftSide ? 30 : 70,
+    72,
     'batter-player'
   );
 
