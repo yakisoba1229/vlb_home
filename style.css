@@ -1,41 +1,47 @@
-:root{--deep:#153d2b;--gold:#e7c35a;--cream:#f8f2df;--ink:#21342a}
+:root{--deep:#153d2b;--gold:#e7c35a;--cream:#f8f2df;--ink:#21342a;--sky-bg:#153d2b}
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:#e9e5d7;color:var(--ink)}
 .site{min-height:100svh;display:flex;flex-direction:column;max-width:900px;margin:auto;background:var(--cream);box-shadow:0 0 30px #0001}
-.topbar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--deep);color:#fff;z-index:2}
+.topbar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--deep);color:#fff;z-index:2;flex-shrink:0}
 .team-mark{width:44px;height:44px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:23px;flex-shrink:0}
-.topbar h1{font-size:1.05rem;margin:0;font-weight:800;letter-spacing:.03em}.topbar p{font-size:.65rem;letter-spacing:.18em;margin:2px 0 0;color:#c9d8cc}
+.brand-text h1{font-size:1.05rem;margin:0;font-weight:800;letter-spacing:.03em}.brand-text p{font-size:.65rem;letter-spacing:.18em;margin:2px 0 0;color:#c9d8cc}
 .menu{margin-left:auto;background:#ffffff18;border:1px solid #ffffff30;color:white;border-radius:10px;font-size:20px;padding:8px 12px}
-.stadium-wrap{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;background:#102f22;padding:0;overflow:hidden}
-.stadium{position:relative;width:100%;aspect-ratio:1/1;background-image:url('assets/stadium.jpg');background-size:100% 100%;background-position:center;overflow:hidden;z-index:1}
-.sky-panel{position:absolute;z-index:2;top:2%;left:3%;right:3%;display:grid;grid-template-columns:1fr 1fr 1fr;align-items:center;color:#f6f2df;text-shadow:0 1px 4px #0009;pointer-events:none}
-.sky-info,.vlb-info{display:flex;flex-direction:column;align-items:center;gap:2px}.sky-date{font-size:clamp(10px,2.8vw,14px);opacity:.88}.sky-clock{font-size:clamp(18px,4.5vw,25px);font-weight:700;letter-spacing:.04em}
-.weather-area{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;min-height:65px;position:relative}.weather-animation{position:relative;height:43px;width:74px;display:grid;place-items:center}.weather-main{font-size:38px;display:inline-block;filter:drop-shadow(0 2px 3px #0004);animation:weatherFloat 3.6s ease-in-out infinite}.weather-cloud,.weather-rain{display:none;position:absolute;inset:0;pointer-events:none}
-.weather-sunny.day .weather-main{animation:sunGlow 3s ease-in-out infinite}.weather-sunny.night .weather-main{animation:moonGlow 3.5s ease-in-out infinite}
-.weather-cloudy .weather-main{animation:cloudDrift 6s ease-in-out infinite}.weather-rain .weather-main{animation:cloudDrift 4s ease-in-out infinite}
-.weather-rain .weather-rain{display:block;top:28px;left:18px;width:42px;height:17px;background:repeating-linear-gradient(105deg,transparent 0 6px,#bce9ff 6px 8px,transparent 8px 13px);animation:rainFall .45s linear infinite;opacity:.85}
-.weather-snow .weather-main{animation:weatherFloat 3s ease-in-out infinite}.weather-text{display:flex;gap:6px;align-items:center;font-size:clamp(10px,2.8vw,13px);font-weight:700}.weather-text span:last-child{font-size:9px;letter-spacing:.12em;opacity:.75}
-.vlb-year{font-size:clamp(11px,3vw,15px);font-weight:800}.small-button{pointer-events:auto;border:1px solid #ffffff55;background:#ffffff18;color:#fff;border-radius:15px;padding:4px 9px;font-size:10px}
-.stadium-footer{position:absolute;z-index:2;left:3%;right:3%;bottom:2.5%;display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none}.stadium-message{max-width:94%;padding:5px 12px;border-radius:20px;background:#123d2cbf;color:#fff;font-size:clamp(10px,2.8vw,13px);text-align:center;text-shadow:none;box-shadow:0 2px 6px #0002}.stadium-controls{display:flex;gap:7px;pointer-events:auto}.stadium-controls button{border:1px solid #ffffff50;border-radius:18px;background:#153d2be8;color:#fff;padding:6px 11px;font-size:clamp(10px,2.7vw,12px);box-shadow:0 2px 6px #0004}
-.player{position:absolute;display:block;width:clamp(45px,9vw,76px);transform:translate(-50%,-50%);transform-origin:center;cursor:pointer;z-index:3;transition:transform .18s,filter .18s}
-.player img{display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 2px 2px #0006)}
-.player-name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:block;width:94%;margin:0;padding:0;color:#111!important;background:none!important;border:0!important;border-radius:0!important;text-shadow:none!important;text-align:center;font-weight:800;line-height:1.05;white-space:nowrap;overflow:visible;pointer-events:none}
-/* 控えはプレートを約1.5倍に */
-.bench-player,.bullpen-player,.batter-player{width:clamp(60px,13.5vw,114px);z-index:4}
-.featured{z-index:8;filter:drop-shadow(0 0 5px #fff) drop-shadow(0 0 9px #f5d35e);animation:featuredPulse 1.8s ease-in-out infinite}
-.featured-badge{position:absolute;top:-13px;left:50%;transform:translateX(-50%);font-size:9px;font-weight:900;color:#fff;background:#c38b16;border:1px solid #fff5c0;border-radius:9px;padding:1px 5px;white-space:nowrap;pointer-events:none}
-.player-selected{transform:translate(-50%,-50%) scale(1.18);z-index:10;filter:drop-shadow(0 0 5px #fff)}
-/* 守備位置はapp.jsから座標を指定 */
-/* 下部メニュー */
-.bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2}
+/* 球場エリアを縦方向に積む。前回の崩れはflexが横並びのまま3要素を縮めていたことが原因 */
+.stadium-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#102f22;overflow:hidden;padding:0;gap:0}
+.sky-panel{position:relative;width:100%;height:clamp(135px,20vh,210px);flex-shrink:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px 12px 6px;color:#f8f3e5;background:#254b68;transition:background 1.2s ease}
+.sky-panel[data-weather="sunny"]{background:linear-gradient(180deg,#78bfe8,#d5e8ed 78%,#f5d89a)}
+.sky-panel[data-weather="cloudy"]{background:linear-gradient(180deg,#738b9a,#a9bdc5 75%,#c5d0ce)}
+.sky-panel[data-weather="rain"]{background:linear-gradient(180deg,#344b60,#627c91 75%,#8195a2)}
+.sky-panel[data-weather="snow"]{background:linear-gradient(180deg,#8bb4cc,#d8e6ef 75%,#edf3f6)}
+.sky-panel[data-time="night"]{filter:brightness(.68) saturate(.82)}
+.sky-date-time{z-index:3;width:100%;display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:700;text-shadow:0 1px 3px #2345;color:#f8fbff}
+.sky-clock{font-variant-numeric:tabular-nums}
+.sky-scene{position:absolute;inset:0;overflow:hidden}
+.sun-or-moon{position:absolute;left:50%;top:36%;transform:translate(-50%,-50%);font-size:clamp(40px,10vw,70px);color:#fff6bb;text-shadow:0 0 12px #fff7a8,0 0 35px #ffdf78;animation:glow 3s ease-in-out infinite alternate;z-index:1}
+.sky-scene.night .sun-or-moon{color:#f4f1dc;text-shadow:0 0 14px #e5e9ff,0 0 28px #c4d5ff}
+.sun-rays{position:absolute;width:45vw;height:45vw;max-width:300px;max-height:300px;left:50%;top:36%;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,#fff7b555 0%,#fff2a622 35%,transparent 70%);animation:raypulse 5s ease-in-out infinite alternate}
+.cloud{position:absolute;width:100px;height:35px;border-radius:30px;background:#fff9;filter:blur(1px);z-index:2;animation:cloudmove 24s linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;border-radius:50%;background:inherit}.cloud:before{width:48px;height:48px;left:18px;top:-20px}.cloud:after{width:38px;height:38px;right:18px;top:-12px}
+.cloud-one{left:-130px;top:27%;animation-duration:36s}.cloud-two{left:-180px;top:58%;opacity:.55;transform:scale(.75);animation-duration:50s;animation-delay:-12s}
+.sky-panel[data-weather="sunny"] .cloud{opacity:.18}.sky-panel[data-weather="cloudy"] .cloud{opacity:.72}.sky-panel[data-weather="rain"] .cloud{opacity:.85}.sky-panel[data-weather="snow"] .cloud{opacity:.55}
+.weather-particles,.sky-stars{position:absolute;inset:0;pointer-events:none;z-index:3}.drop{position:absolute;top:-12px;width:2px;height:12px;background:#d9efffbb;animation:rainfall linear infinite}.flake{position:absolute;top:-12px;width:5px;height:5px;border-radius:50%;background:#fff;animation:snowfall linear infinite}.star{position:absolute;width:3px;height:3px;border-radius:50%;background:#fff;animation:twinkle 2s ease-in-out infinite alternate}
+.sky-caption{z-index:4;display:flex;gap:12px;align-items:center;font-size:12px;font-weight:800;color:#fff;text-shadow:0 1px 4px #234;align-self:center;margin-top:auto;padding-bottom:18px}
+.vlb-year{position:absolute;bottom:5px;left:10px;z-index:5;font-size:11px;font-weight:800;color:#fff;text-shadow:0 1px 4px #234}
+.stadium{position:relative;width:100%;aspect-ratio:1/1;flex-shrink:0;background-image:url('assets/stadium.jpg');background-size:100% 100%;background-position:center;overflow:hidden}
+.player{position:absolute;display:block;width:clamp(48px,11vw,82px);transform:translate(-50%,-50%);cursor:pointer;z-index:3}
+.player img{display:block;width:100%;height:auto;object-fit:contain;filter:drop-shadow(0 2px 2px #0005)}
+.player-name{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:max-content;max-width:none;white-space:nowrap;overflow:visible;font-size:11px;font-weight:700;line-height:1.15;color:#000;background:transparent;border:0;border-radius:0;padding:0;text-shadow:none;z-index:5;pointer-events:none}
+.field-player{width:clamp(48px,11vw,82px);z-index:4}
+/* 控えプレートは以前の半分サイズから1.5倍に調整 */
+.bench-player,.bullpen-player,.batter-player{width:clamp(36px,8.25vw,62px);z-index:3}
+.stadium-footer{width:100%;height:clamp(48px,9vh,90px);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#102f22;color:#dce8dd}
+.footer-caption{font-size:12px;letter-spacing:.12em;opacity:.75}
+.bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2;flex-shrink:0}
 .bottom-nav button{border:0;background:transparent;color:#66736a;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;font-size:18px}.bottom-nav small{font-size:10px}.bottom-nav button.active{color:var(--deep);font-weight:800}
-.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#183d2c;color:#fff;padding:10px 16px;border-radius:20px;box-shadow:0 5px 18px #0003;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center;font-size:13px;z-index:20}.toast.show{opacity:1}
-@keyframes weatherFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-@keyframes sunGlow{0%,100%{filter:drop-shadow(0 0 3px #ffd45a)}50%{filter:drop-shadow(0 0 13px #ffdb70)}}
-@keyframes moonGlow{0%,100%{filter:drop-shadow(0 0 3px #d6e7ff)}50%{filter:drop-shadow(0 0 12px #bcd7ff)}}
-@keyframes cloudDrift{0%,100%{transform:translateX(-3px)}50%{transform:translateX(4px)}}
-@keyframes rainFall{from{transform:translateY(-3px)}to{transform:translateY(7px)}}
-@keyframes featuredPulse{0%,100%{scale:1}50%{scale:1.05}}
-@media(min-width:700px){.stadium-wrap{padding:14px}.stadium{border-radius:14px;max-height:calc(100vh - 150px);width:auto;height:min(78vh,760px);aspect-ratio:1/1}.bottom-nav{padding:10px}.topbar{padding:14px 22px}.sky-panel{max-width:700px;margin:auto}.stadium-footer{max-width:700px;margin:auto}}
-@media(max-width:420px){.topbar{gap:9px;padding:10px 12px}.team-mark{width:40px;height:40px}.sky-panel{top:3%;left:2%;right:2%}.stadium-footer{bottom:2%}.stadium-controls button{padding:5px 8px}}
-@media(prefers-reduced-motion:reduce){.weather-main,.featured{animation:none!important}.weather-rain{animation:none!important}}
+.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#183d2c;color:#fff;padding:10px 16px;border-radius:20px;box-shadow:0 5px 18px #0003;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center;font-size:13px;z-index:10}.toast.show{opacity:1}
+@keyframes glow{from{opacity:.72;transform:translate(-50%,-50%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1.05)}}
+@keyframes raypulse{from{opacity:.45;transform:translate(-50%,-50%) scale(.9)}to{opacity:.85;transform:translate(-50%,-50%) scale(1.08)}}
+@keyframes cloudmove{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 260px))}}
+@keyframes rainfall{to{transform:translateY(180px)}}@keyframes snowfall{to{transform:translateY(180px) translateX(25px)}}@keyframes twinkle{from{opacity:.25;transform:scale(.7)}to{opacity:1;transform:scale(1.4)}}
+@media(min-width:700px){.stadium-wrap{padding:12px}.stadium{width:min(100%,78vh);border-radius:12px}.sky-panel,.stadium-footer{border-radius:10px}.bottom-nav{padding:10px}.topbar{padding:14px 22px}}
+@media(max-width:500px){.field-player{width:11vw}.bench-player,.bullpen-player,.batter-player{width:8.25vw}.topbar{padding:12px 16px}.sky-panel{height:clamp(135px,19vh,185px)}.stadium-footer{height:clamp(44px,7vh,65px)}}
