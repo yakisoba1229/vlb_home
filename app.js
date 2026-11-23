@@ -37,7 +37,11 @@ const fixedPlayers = {
 // 選手を球場に配置
 function createPlayer(player, position, usedPlayers) {
   const div = document.createElement('div');
-  div.className = `player ${position.className}`;
+  const idleTypes = ['idle-a', 'idle-b', 'idle-c', 'idle-d'];
+
+const idleIndex = parseInt(player.id.replace('player', ''), 10) % idleTypes.length;
+
+div.className = `player ${position.className} ${idleTypes[idleIndex]}`;
   div.dataset.player = player.name;
   div.dataset.playerId = player.id;
 
