@@ -96,8 +96,7 @@ body {
   overflow: hidden;
 }
 
-
-/* 選手共通 */
+/* 選手 */
 .player {
   position: absolute;
   display: block;
@@ -112,10 +111,10 @@ body {
   width: 100%;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 2px 2px #0006);
+  filter: drop-shadow(0 2px 2px #0005);
 }
 
-/* 名前をプレート中央に重ねる */
+/* 名前：プレートの中心に重ねる */
 .player-name {
   position: absolute;
   left: 50%;
@@ -131,25 +130,23 @@ body {
   font-weight: 700;
   line-height: 1.15;
 
-  color: #fff;
-  background: #123d2cdd;
-  border: 1px solid #e7c35a;
-  border-radius: 20px;
-  padding: 2px 5px;
-  text-shadow: 0 1px 2px #000;
+  color: #000;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  text-shadow: none;
   z-index: 5;
 }
 
 /* 長い名前 */
 .player-name.name-long {
   font-size: 8px;
-  padding: 1px 3px;
 }
 
 /* 非常に長い名前 */
 .player-name.name-very-long {
   font-size: 6px;
-  padding: 1px 2px;
 }
 
 /* スタメン */
@@ -158,7 +155,7 @@ body {
   z-index: 4;
 }
 
-/* スタメン以外は約半分 */
+/* 控えはスタメンの約半分 */
 .bench-player,
 .bullpen-player,
 .batter-player {
@@ -166,14 +163,14 @@ body {
   z-index: 3;
 }
 
-/* 非スタメンの名前 */
+/* 控え選手の名前 */
 .bench-player .player-name,
 .bullpen-player .player-name,
 .batter-player .player-name {
   font-size: 7px;
-  padding: 1px 2px;
 }
 
+/* 控えの長い名前 */
 .bench-player .player-name.name-long,
 .bullpen-player .player-name.name-long,
 .batter-player .player-name.name-long {
@@ -185,7 +182,6 @@ body {
 .batter-player .player-name.name-very-long {
   font-size: 5px;
 }
-
 
 /* 下部メニュー */
 .bottom-nav {
@@ -278,13 +274,32 @@ body {
   }
 
   .field-player .player-name {
+    font-size: 8px;
+  }
+
+  .field-player .player-name.name-long {
     font-size: 7px;
+  }
+
+  .field-player .player-name.name-very-long {
+    font-size: 6px;
   }
 
   .bench-player .player-name,
   .bullpen-player .player-name,
   .batter-player .player-name {
     font-size: 6px;
-    padding: 1px 2px;
+  }
+
+  .bench-player .player-name.name-long,
+  .bullpen-player .player-name.name-long,
+  .batter-player .player-name.name-long {
+    font-size: 5px;
+  }
+
+  .bench-player .player-name.name-very-long,
+  .bullpen-player .player-name.name-very-long,
+  .batter-player .player-name.name-very-long {
+    font-size: 4px;
   }
 }
