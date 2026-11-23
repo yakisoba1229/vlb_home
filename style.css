@@ -96,14 +96,13 @@ body {
   overflow: hidden;
 }
 
+
 /* 選手共通 */
 .player {
   position: absolute;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  display: block;
   width: clamp(48px, 11vw, 82px);
-  transform: translate(-50%, -75%);
+  transform: translate(-50%, -50%);
   cursor: pointer;
   z-index: 3;
 }
@@ -116,16 +115,41 @@ body {
   filter: drop-shadow(0 2px 2px #0006);
 }
 
+/* 名前をプレート中央に重ねる */
 .player-name {
-  margin-top: -2px;
-  font-size: clamp(7px, 1.3vw, 11px);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+
+  width: max-content;
+  max-width: none;
   white-space: nowrap;
+  overflow: visible;
+
+  font-size: clamp(8px, 1.3vw, 11px);
+  font-weight: 700;
+  line-height: 1.15;
+
   color: #fff;
   background: #123d2cdd;
-  border: 1px solid var(--gold);
+  border: 1px solid #e7c35a;
   border-radius: 20px;
-  padding: 1px 5px;
-  text-shadow: 0 1px 1px #000;
+  padding: 2px 5px;
+  text-shadow: 0 1px 2px #000;
+  z-index: 5;
+}
+
+/* 長い名前 */
+.player-name.name-long {
+  font-size: 8px;
+  padding: 1px 3px;
+}
+
+/* 非常に長い名前 */
+.player-name.name-very-long {
+  font-size: 6px;
+  padding: 1px 2px;
 }
 
 /* スタメン */
@@ -134,7 +158,7 @@ body {
   z-index: 4;
 }
 
-/* スタメン以外：約半分 */
+/* スタメン以外は約半分 */
 .bench-player,
 .bullpen-player,
 .batter-player {
@@ -142,25 +166,26 @@ body {
   z-index: 3;
 }
 
+/* 非スタメンの名前 */
 .bench-player .player-name,
 .bullpen-player .player-name,
 .batter-player .player-name {
-  font-size: clamp(6px, 1vw, 9px);
-  padding: 1px 3px;
+  font-size: 7px;
+  padding: 1px 2px;
 }
 
-/* ベンチ・ブルペン・バッターの表示をスタメンより前に */
-.bench-player {
-  z-index: 2;
+.bench-player .player-name.name-long,
+.bullpen-player .player-name.name-long,
+.batter-player .player-name.name-long {
+  font-size: 6px;
 }
 
-.bullpen-player {
-  z-index: 2;
+.bench-player .player-name.name-very-long,
+.bullpen-player .player-name.name-very-long,
+.batter-player .player-name.name-very-long {
+  font-size: 5px;
 }
 
-.batter-player {
-  z-index: 3;
-}
 
 /* 下部メニュー */
 .bottom-nav {
