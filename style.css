@@ -415,3 +415,77 @@ body {
 .toast.show {
   opacity: 1;
 }
+
+/* =================================
+   ゲーム内選手プレート表示
+================================= */
+
+.player {
+  width: clamp(48px, 13vw, 90px);
+  display: block;
+  transform: translate(-50%, -50%);
+  transform-origin: center center;
+  animation: none !important;
+  translate: none !important;
+  rotate: none !important;
+  cursor: pointer;
+  z-index: 3;
+}
+
+.player img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 2px 2px #0007);
+}
+
+.player .player-name {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0;
+  padding: 0 2px;
+  width: 75%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: center;
+  font-size: clamp(7px, 2vw, 12px);
+  font-weight: 800;
+  line-height: 1.2;
+  color: #111;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  text-shadow: none;
+  pointer-events: none;
+}
+
+/* ベンチ・ブルペン・バッターズサークル */
+.player.p-extra {
+  width: clamp(46px, 12vw, 76px);
+  z-index: 4;
+}
+
+.player.p-bench {
+  opacity: .95;
+}
+
+.player.p-bullpen {
+  width: clamp(44px, 11vw, 70px);
+}
+
+.player.p-batter {
+  width: clamp(52px, 13vw, 84px);
+  z-index: 5;
+}
+
+/* プレートは静止させる */
+@media (prefers-reduced-motion: no-preference) {
+  .player {
+    animation: none !important;
+  }
+}
+
