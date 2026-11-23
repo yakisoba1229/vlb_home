@@ -1,5 +1,7 @@
 const toast = document.getElementById('toast');
 let toastTimer;
+let currentWeather;
+let currentDayNight;
 
 function showToast(message) {
   if (!toast) return;
@@ -10,6 +12,7 @@ function showToast(message) {
 }
 
 
+// 守備位置（球場画像に対する相対位置）
 const fieldPositions = [
   { code: 'CF', left: 51, top: 36 },
   { code: 'LF', left: 27, top: 42 },
@@ -21,10 +24,8 @@ const fieldPositions = [
   { code: 'P', left: 50, top: 63 },
   { code: 'C', left: 50, top: 80 }
 ];
-
 const OF = ['LF', 'CF', 'RF'];
 const IF = ['1B', '2B', '3B', 'SS'];
-
 function canPlay(player, position) {
   const matches = code => player.m === code || player.s.includes(code);
   if (OF.includes(position)) return matches('OF');
@@ -63,62 +64,48 @@ function createLineup(players) {
   return solve([...fieldPositions], [...players]) ? result : null;
 }
 function getPlate(player) {
-  const group = position => {
-    if (position === 'P') return 'p';
-    if (position === 'C') return 'c';
-    if (position === 'OF') return 'o';
-    if (IF.includes(position)) return 'i';
-    return null;
-  };
-  const main = group(player.m), subs = [...new Set(player.s.map(group).filter(Boolean))];
+  const group = pos => pos === 'P' ? 'p' : pos === 'C' ? 'c' : pos === 'OF' ? 'o' : IF.includes(pos) ? 'i' : null;
+  const main = group(player.m);
+  const subs = [...new Set(player.s.map(group).filter(Boolean))];
   if (main === 'p') return 'p';
   if (main === 'i') { if (subs.includes('o')) return 'i_o'; if (subs.includes('c')) return 'i_c'; return 'i'; }
   if (main === 'o') { if (subs.includes('i')) return 'o_i'; return 'o'; }
   if (main === 'c') { if (subs.includes('i')) return 'c_i'; if (subs.includes('o')) return 'c_o'; return 'c'; }
   return 'i';
 }
-
 const playerRecords = [];
 function addPlayer(player, left, top, area = '') {
   const div = document.createElement('div');
   div.className = `player ${area}`;
-  div.style.left = `${left}%`;
-  div.style.top = `${top}%`;
-  div.dataset.name = player.n;
-
+  div.style.left = `${left}%`; div.style.top = `${top}%`; div.dataset.name = player.n;
   const img = document.createElement('img');
-  img.src = `assets/${getPlate(player)}.gif`;
-  img.alt = `${player.n} プレート`;
+  img.src = `assets/${getPlate(player)}.gif`; img.alt = `${player.n}プレート`;
   img.onerror = () => { console.error('画像が見つかりません:', img.src); img.style.display = 'none'; };
-
   const label = document.createElement('span');
-  label.className = 'player-name';
-  label.textContent = player.n;
+  label.className = 'player-name'; label.textContent = player.n;
   div.append(img, label);
-
-  function fitName() {
-    const isReserve = div.classList.contains('bench-player') || div.classList.contains('bullpen-player') || div.classList.contains('batter-player');
-    const baseSize = isReserve ? 9 : 11;
-    const minSize = isReserve ? 5.5 : 6.5;
-    label.style.fontSize = `${baseSize}px`;
-    const maxWidth = label.clientWidth;
-    while (label.scrollWidth > maxWidth && parseFloat(label.style.fontSize) > minSize) {
-      label.style.fontSize = `${parseFloat(label.style.fontSize) - 0.5}px`;
-    }
-  }
-
   div.addEventListener('click', () => showToast(`${player.n}：プロフィールは今後実装予定`));
   document.getElementById('stadium').appendChild(div);
-  requestAnimationFrame(fitName);
   playerRecords.push({ player, div, left, top, area });
-  return div;
+  // VLB本編のプレート表記を意識し、文字は控えめなサイズ＋左右対称の余白。
+  // CSSで名前欄の幅を固定し、文字が収まらない場合だけ縮小する。
+  requestAnimationFrame(() => {
+    const isReserve = /bench-player|bullpen-player|batter-player/.test(area);
+    let fontSize = isReserve ? 7 : 9;
+    label.style.fontSize = `${fontSize}px`;
+    const available = label.clientWidth;
+    while (label.scrollWidth > available && fontSize > 4) {
+      fontSize -= 0.25;
+      label.style.fontSize = `${fontSize}px`;
+    }
+  });
 }
-
 function shuffle(list) {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
+// 球場画像内の左右ベンチ位置
 const benchLeftPositions = [[7,63],[10,68],[16,73],[20,77],[25,82]];
 const benchRightPositions = [[90,65],[87,69],[85,73],[81,77],[75,82]];
 function createBench(players) {
@@ -135,12 +122,28 @@ function createBullpen(players) {
 }
 function createBatterCircle(players) {
   if (!players.length) return null;
-  const player = shuffle(players)[0], side = Math.random() < .5;
-  addPlayer(player, side ? 34 : 66, 72, 'batter-player');
-  return player;
+  const p = shuffle(players)[0], side = Math.random() < 0.5;
+  addPlayer(p, side ? 34 : 66, 72, 'batter-player');
+  return p;
+}
+function renderPlayers(players) {
+  stopSpeech(); playerRecords.length = 0;
+  const stadium = document.getElementById('stadium'); stadium.innerHTML = '';
+  const lineup = createLineup(players);
+  if (!lineup) { showToast('守備配置を作れません。適性を確認してください'); return; }
+  const used = new Set();
+  fieldPositions.forEach(pos => { const p = lineup.get(pos.code); if (p) { used.add(p); addPlayer(p, pos.left, pos.top, 'field-player'); } });
+  let remaining = players.filter(p => !used.has(p));
+  const bullpen = createBullpen(remaining.filter(p => p.m === 'P'));
+  bullpen.forEach(p => used.add(p));
+  remaining = players.filter(p => !used.has(p));
+  const batter = createBatterCircle(remaining.filter(p => p.m !== 'P'));
+  if (batter) used.add(batter);
+  createBench(players.filter(p => !used.has(p)));
+  startSpeech();
 }
 
-// 共通の短いセリフ。2～6人にランダムで表示します。
+// --- 選手の吹き出し（重なっても選手が見える半透明表示） ---
 const speechLines = [
   'こんにちは！','元気！','ようこそ！','勝ちたい！','疲れた！','考え中…','ご飯食べたい',
   'いい天気だね','準備OK！','頑張ろう！','調子いいかも','眠い…','お腹すいた','やるぞ！',
@@ -149,105 +152,160 @@ const speechLines = [
   '今日は何しよう','練習したい','ホーム最高！','わくわくする','ぼちぼち行こう','ちょっと緊張…','任せて！',
   '腹ペコです','いい夢見たい','頑張るぞー','気分上々！','無理せずね','声出していこう','やったるで！',
   'ここが好き','楽しんでいこう','休憩も大事','よし、行こう！','今日は勝つ！','いい予感！','平常心…','絶対負けない！'
-];
-function rectsOverlap(a, b, pad = 3) {
-  return !(a.right + pad <= b.left || b.right + pad <= a.left || a.bottom + pad <= b.top || b.bottom + pad <= a.top);
-}
-function rectOf(el, bounds) {
-  const r = el.getBoundingClientRect();
-  return { left: r.left - bounds.left, top: r.top - bounds.top, right: r.right - bounds.left, bottom: r.bottom - bounds.top };
-}
-let speechTimer = null;
+];let speechTimer = null;
 let speechHideTimer = null;
-function clearSpeechBubbles() {
-  clearTimeout(speechTimer);
-  clearTimeout(speechHideTimer);
+function stopSpeech() {
+  clearTimeout(speechTimer); clearTimeout(speechHideTimer);
   document.querySelectorAll('.speech-bubble').forEach(b => b.remove());
 }
+function rectOverlap(a,b,pad=2) {
+  return !(a.right+pad<=b.left || b.right+pad<=a.left || a.bottom+pad<=b.top || b.bottom+pad<=a.top);
+}
+function elementRect(el, stadiumRect) {
+  const r=el.getBoundingClientRect();
+  return {left:r.left-stadiumRect.left, top:r.top-stadiumRect.top, right:r.right-stadiumRect.left, bottom:r.bottom-stadiumRect.top};
+}
 function showSpeechCycle() {
-  const stadium = document.getElementById('stadium');
-  const bounds = stadium.getBoundingClientRect();
-  if (!bounds.width || !bounds.height || !playerRecords.length) return;
-  clearSpeechBubbles();
-
-  const count = Math.min(playerRecords.length, 2 + Math.floor(Math.random() * 5));
-  const selected = shuffle(playerRecords).slice(0, count);
-  const occupied = playerRecords.map(r => ({ record: r, rect: rectOf(r.div, bounds) }));
-  const placed = [];
-  const bubbleW = Math.max(58, Math.min(88, bounds.width * 0.15));
-  const bubbleH = 26;
-  selected.forEach(record => {
-    const playerBox = rectOf(record.div, bounds);
-    const cx = (playerBox.left + playerBox.right) / 2;
-    const options = [
-      { x: cx, y: playerBox.top - 5, side: 'above' },
-      { x: cx - bubbleW * 0.20, y: playerBox.top - 5, side: 'above' },
-      { x: cx + bubbleW * 0.20, y: playerBox.top - 5, side: 'above' },
-      { x: cx, y: playerBox.bottom + bubbleH + 6, side: 'below' },
-      { x: cx - bubbleW * 0.22, y: playerBox.bottom + bubbleH + 6, side: 'below' },
-      { x: cx + bubbleW * 0.22, y: playerBox.bottom + bubbleH + 6, side: 'below' }
+  const stadium=document.getElementById('stadium');
+  const bounds=stadium.getBoundingClientRect();
+  if(!bounds.width || !bounds.height || !playerRecords.length) return;
+  document.querySelectorAll('.speech-bubble').forEach(b=>b.remove());
+  const count=Math.min(playerRecords.length,2+Math.floor(Math.random()*5));
+  const selected=shuffle(playerRecords).slice(0,count);
+  const playerRects=playerRecords.map(r=>({record:r,rect:elementRect(r.div,bounds)}));
+  const placed=[];
+  const bubbleW=Math.max(48,Math.min(72,bounds.width*.12));
+  const bubbleH=25;
+  selected.forEach(record=>{
+    const pr=elementRect(record.div,bounds);
+    const cx=(pr.left+pr.right)/2;
+    const gap=4;
+    const candidates=[
+      {x:cx,y:pr.top-bubbleH-gap},
+      {x:cx-bubbleW*.25,y:pr.top-bubbleH-gap},
+      {x:cx+bubbleW*.25,y:pr.top-bubbleH-gap},
+      {x:cx-bubbleW*.42,y:pr.top-bubbleH-gap},
+      {x:cx+bubbleW*.42,y:pr.top-bubbleH-gap},
+      {x:cx,y:pr.bottom+gap},
+      {x:cx-bubbleW*.25,y:pr.bottom+gap},
+      {x:cx+bubbleW*.25,y:pr.bottom+gap}
     ];
-    let chosen = null;
-    for (const option of options) {
-      let left = option.x - bubbleW / 2;
-      let top = option.side === 'above' ? option.y - bubbleH : option.y - bubbleH;
-      left = Math.max(3, Math.min(bounds.width - bubbleW - 3, left));
-      top = Math.max(3, Math.min(bounds.height - bubbleH - 3, top));
-      const box = { left, top, right: left + bubbleW, bottom: top + bubbleH };
-      // A bubble may overlap its speaker's plate slightly only if no clear slot exists;
-      // otherwise avoid other players and already displayed bubbles.
-      const overlapsSpeaker = rectsOverlap(box, playerBox, 2);
-      const overlapsOtherPlayer = occupied.some(item => item.record !== record && rectsOverlap(box, item.rect, 2));
-      const overlapsBubble = placed.some(r => rectsOverlap(box, r, 3));
-      if (!overlapsSpeaker && !overlapsOtherPlayer && !overlapsBubble) { chosen = box; break; }
+    let chosen=null;
+    for(const c of candidates){
+      let left=Math.max(2,Math.min(bounds.width-bubbleW-2,c.x-bubbleW/2));
+      let top=Math.max(2,Math.min(bounds.height-bubbleH-2,c.y));
+      const box={left,top,right:left+bubbleW,bottom:top+bubbleH};
+      const overlapsOther=playerRects.some(item=>item.record!==record && rectOverlap(box,item.rect,1));
+      const overlapsBubble=placed.some(b=>rectOverlap(box,b,2));
+      if(!overlapsOther && !overlapsBubble){chosen=box;break;}
     }
-    if (!chosen) {
-      // Keep the bubble near its own player, never outside the stadium.
-      let left = Math.max(3, Math.min(bounds.width - bubbleW - 3, cx - bubbleW / 2));
-      let top = Math.max(3, playerBox.top - bubbleH - 7);
-      if (top < 3) top = Math.min(bounds.height - bubbleH - 3, playerBox.bottom + 7);
-      chosen = { left, top, right: left + bubbleW, bottom: top + bubbleH };
+    if(!chosen){
+      // 密集区域では対象選手の中心を基準に、画面内へ収めた位置に出す。
+      const left=Math.max(2,Math.min(bounds.width-bubbleW-2,cx-bubbleW/2));
+      let top=pr.top-bubbleH-3;
+      if(top<2) top=Math.min(bounds.height-bubbleH-2,pr.bottom+3);
+      chosen={left,top,right:left+bubbleW,bottom:top+bubbleH};
     }
     placed.push(chosen);
-    const bubble = document.createElement('div');
-    bubble.className = 'speech-bubble';
-    bubble.textContent = shuffle(speechLines)[0];
-    bubble.dataset.speaker = record.player.n;
-    bubble.style.left = `${chosen.left + bubbleW / 2}px`;
-    bubble.style.top = `${chosen.top}px`;
-    bubble.style.width = `${bubbleW}px`;
+    const bubble=document.createElement('div');
+    bubble.className='speech-bubble';
+    bubble.textContent=shuffle(speechLines)[0];
+    bubble.dataset.speaker=record.player.n;
+    bubble.style.left=`${chosen.left+bubbleW/2}px`;
+    bubble.style.top=`${chosen.top}px`;
+    bubble.style.width=`${bubbleW}px`;
     stadium.appendChild(bubble);
-    requestAnimationFrame(() => bubble.classList.add('bubble-visible'));
+    requestAnimationFrame(()=>bubble.classList.add('bubble-visible'));
   });
-  // Show for 3 seconds, then hide briefly and pick a new random group.
-  speechHideTimer = setTimeout(() => {
-    document.querySelectorAll('.speech-bubble').forEach(b => b.classList.remove('bubble-visible'));
-    speechTimer = setTimeout(showSpeechCycle, 700 + Math.random() * 500);
-  }, 3000);
+  speechHideTimer=setTimeout(()=>{
+    document.querySelectorAll('.speech-bubble').forEach(b=>b.classList.remove('bubble-visible'));
+    speechTimer=setTimeout(showSpeechCycle,1200+Math.random()*1800);
+  },3500);
 }
+function startSpeech() { stopSpeech(); requestAnimationFrame(showSpeechCycle); }
 
-async function loadPlayers() {
-  try {
-    const response=await fetch('data/players.json?v=20261124-5');
-    if(!response.ok) throw new Error('players.json 読み込み失敗');
-    const players=await response.json(), stadium=document.getElementById('stadium');
-    stadium.innerHTML=''; playerRecords.length=0;
-    const lineup=createLineup(players);
-    if(!lineup){showToast('守備配置を作れません。適性を確認してください');return;}
-    const used=new Set();
-    fieldPositions.forEach(pos=>{const p=lineup.get(pos.code);if(p){used.add(p);addPlayer(p,pos.left,pos.top,'field-player');}});
-    let remaining=players.filter(p=>!used.has(p));
-    const bullpen=createBullpen(remaining.filter(p=>p.m==='P')); bullpen.forEach(p=>used.add(p));
-    remaining=players.filter(p=>!used.has(p));
-    const batter=createBatterCircle(remaining.filter(p=>p.m!=='P')); if(batter)used.add(batter);
-    createBench(players.filter(p=>!used.has(p)));
-    requestAnimationFrame(() => showSpeechCycle());
-  } catch(error) {console.error(error);showToast('選手データの読み込みに失敗しました');}
+
+// 天候と昼夜はページを開くたびに独立してランダム
+const weatherOptions = [
+  { type: 'sunny', label: '晴れ' },
+  { type: 'cloudy', label: '曇り' },
+  { type: 'rain', label: '雨' },
+  { type: 'snow', label: '雪' }
+];
+function setupSky() {
+  currentWeather = shuffle(weatherOptions)[0];
+  currentDayNight = Math.random() < 0.5 ? 'day' : 'night';
+  const panel = document.getElementById('skyPanel');
+  panel.dataset.weather = currentWeather.type;
+  panel.dataset.time = currentDayNight;
+  document.getElementById('weatherName').textContent = currentWeather.label;
+  document.getElementById('dayNightName').textContent = currentDayNight === 'day' ? '昼' : '夜';
+  const sunMoon = document.getElementById('sunMoon');
+  sunMoon.textContent = currentDayNight === 'day' ? '☀' : '☾';
+  document.getElementById('skyScene').classList.toggle('night', currentDayNight === 'night');
+  createParticles(currentWeather.type, currentDayNight);
 }
-loadPlayers();
-document.querySelectorAll('.bottom-nav button').forEach(button=>button.addEventListener('click',()=>{
-  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
+function createParticles(type, time) {
+  const area = document.getElementById('weatherParticles');
+  area.innerHTML = '';
+  const stars = document.getElementById('skyStars');
+  stars.innerHTML = '';
+  if (time === 'night') {
+    for (let i = 0; i < 18; i++) {
+      const star = document.createElement('i'); star.className = 'star';
+      star.style.left = `${Math.random()*100}%`; star.style.top = `${Math.random()*85}%`;
+      star.style.animationDelay = `${Math.random()*3}s`; stars.appendChild(star);
+    }
+  }
+  const count = type === 'rain' ? 42 : type === 'snow' ? 24 : 0;
+  for (let i = 0; i < count; i++) {
+    const particle = document.createElement('i'); particle.className = type === 'rain' ? 'drop' : 'flake';
+    particle.style.left = `${Math.random()*100}%`;
+    particle.style.animationDelay = `${Math.random()*2.8}s`;
+    particle.style.animationDuration = `${type === 'rain' ? 0.55+Math.random()*0.65 : 3+Math.random()*5}s`;
+    area.appendChild(particle);
+  }
+}
+function updateClock() {
+  const now = new Date();
+  document.getElementById('realDate').textContent = now.toLocaleDateString('ja-JP', {month:'long',day:'numeric',weekday:'short'});
+  document.getElementById('realClock').textContent = now.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+}
+// VLBは544年開始。毎週月曜22時に1年進める（端末内に保存）
+const VLB_START_YEAR = 544;
+function monday22Key(date) {
+  const d = new Date(date); d.setHours(22,0,0,0);
+  const day = d.getDay();
+  d.setDate(d.getDate() - ((day + 6) % 7));
+  if (date.getDay() === 1 && date.getHours() < 22) d.setDate(d.getDate() - 7);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function updateVlbYear() {
+  const now = new Date(), currentKey = monday22Key(now);
+  let year = Number(localStorage.getItem('vlbYear') || VLB_START_YEAR);
+  let lastKey = localStorage.getItem('vlbLastUpdate');
+  if (!lastKey) { lastKey = currentKey; localStorage.setItem('vlbLastUpdate', lastKey); }
+  else if (lastKey !== currentKey) {
+    const last = new Date(`${lastKey}T22:00:00`), current = new Date(`${currentKey}T22:00:00`);
+    const weeks = Math.max(0, Math.floor((current-last)/(7*24*60*60*1000)));
+    year += weeks; localStorage.setItem('vlbYear', String(year)); localStorage.setItem('vlbLastUpdate', currentKey);
+  }
+  if (!localStorage.getItem('vlbYear')) localStorage.setItem('vlbYear', String(year));
+  document.getElementById('vlbYear').textContent = `VLB ${year}年`;
+}
+async function init() {
+  updateClock(); updateVlbYear(); setupSky();
+  setInterval(() => { updateClock(); updateVlbYear(); }, 1000);
+  try {
+    const response = await fetch('data/players.json?v=20261124-11');
+    if (!response.ok) throw new Error('選手データ読み込み失敗');
+    const players = await response.json(); renderPlayers(players);
+  } catch (error) { console.error(error); showToast('選手データの読み込みに失敗しました'); }
+}
+init();
+document.querySelectorAll('.bottom-nav button').forEach(button => button.addEventListener('click', () => {
+  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
   button.classList.add('active'); showToast(`${button.dataset.page} は今後実装予定です`);
 }));
-const menuBtn=document.getElementById('menuBtn');
-if(menuBtn) menuBtn.addEventListener('click',()=>showToast('メニューは今後追加します'));
+const menuBtn = document.getElementById('menuBtn');
+if (menuBtn) menuBtn.addEventListener('click', () => showToast('メニューは今後追加します'));
