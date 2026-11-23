@@ -1,7 +1,5 @@
 const toast = document.getElementById('toast');
 let toastTimer;
-let currentWeather;
-let currentDayNight;
 
 function showToast(message) {
   if (!toast) return;
@@ -12,7 +10,6 @@ function showToast(message) {
 }
 
 
-// 守備位置（球場画像に対する相対位置）
 const fieldPositions = [
   { code: 'CF', left: 51, top: 36 },
   { code: 'LF', left: 27, top: 42 },
@@ -24,8 +21,10 @@ const fieldPositions = [
   { code: 'P', left: 50, top: 63 },
   { code: 'C', left: 50, top: 80 }
 ];
+
 const OF = ['LF', 'CF', 'RF'];
 const IF = ['1B', '2B', '3B', 'SS'];
+
 function canPlay(player, position) {
   const matches = code => player.m === code || player.s.includes(code);
   if (OF.includes(position)) return matches('OF');
@@ -64,44 +63,42 @@ function createLineup(players) {
   return solve([...fieldPositions], [...players]) ? result : null;
 }
 function getPlate(player) {
-  const group = pos => pos === 'P' ? 'p' : pos === 'C' ? 'c' : pos === 'OF' ? 'o' : IF.includes(pos) ? 'i' : null;
-  const main = group(player.m);
-  const subs = [...new Set(player.s.map(group).filter(Boolean))];
+  const group = position => {
+    if (position === 'P') return 'p';
+    if (position === 'C') return 'c';
+    if (position === 'OF') return 'o';
+    if (IF.includes(position)) return 'i';
+    return null;
+  };
+  const main = group(player.m), subs = [...new Set(player.s.map(group).filter(Boolean))];
   if (main === 'p') return 'p';
   if (main === 'i') { if (subs.includes('o')) return 'i_o'; if (subs.includes('c')) return 'i_c'; return 'i'; }
   if (main === 'o') { if (subs.includes('i')) return 'o_i'; return 'o'; }
   if (main === 'c') { if (subs.includes('i')) return 'c_i'; if (subs.includes('o')) return 'c_o'; return 'c'; }
   return 'i';
 }
+
+const playerRecords = [];
 function addPlayer(player, left, top, area = '') {
   const div = document.createElement('div');
   div.className = `player ${area}`;
   div.style.left = `${left}%`; div.style.top = `${top}%`; div.dataset.name = player.n;
   const img = document.createElement('img');
-  img.src = `assets/${getPlate(player)}.gif`; img.alt = `${player.n}プレート`;
+  img.src = `assets/${getPlate(player)}.gif`; img.alt = `${player.n} プレート`;
   img.onerror = () => { console.error('画像が見つかりません:', img.src); img.style.display = 'none'; };
   const label = document.createElement('span');
   label.className = 'player-name'; label.textContent = player.n;
   div.append(img, label);
   div.addEventListener('click', () => showToast(`${player.n}：プロフィールは今後実装予定`));
   document.getElementById('stadium').appendChild(div);
-  // 描画後に名前幅を測り、プレート幅を超える場合だけ縮小
-  requestAnimationFrame(() => {
-    const available = div.clientWidth * 0.94;
-    let fontSize = area.includes('field-player') ? 11 : 9;
-    label.style.fontSize = `${fontSize}px`;
-    while (label.scrollWidth > available && fontSize > 4) {
-      fontSize -= 0.5;
-      label.style.fontSize = `${fontSize}px`;
-    }
-  });
+  playerRecords.push({ player, div, left, top, area });
+  return div;
 }
 function shuffle(list) {
   const a = [...list];
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 }
-// 球場画像内の左右ベンチ位置
 const benchLeftPositions = [[7,63],[10,68],[16,73],[20,77],[25,82]];
 const benchRightPositions = [[90,65],[87,69],[85,73],[81,77],[75,82]];
 function createBench(players) {
@@ -118,106 +115,83 @@ function createBullpen(players) {
 }
 function createBatterCircle(players) {
   if (!players.length) return null;
-  const p = shuffle(players)[0], side = Math.random() < 0.5;
-  addPlayer(p, side ? 34 : 66, 72, 'batter-player');
-  return p;
-}
-function renderPlayers(players) {
-  const stadium = document.getElementById('stadium'); stadium.innerHTML = '';
-  const lineup = createLineup(players);
-  if (!lineup) { showToast('守備配置を作れません。適性を確認してください'); return; }
-  const used = new Set();
-  fieldPositions.forEach(pos => { const p = lineup.get(pos.code); if (p) { used.add(p); addPlayer(p, pos.left, pos.top, 'field-player'); } });
-  let remaining = players.filter(p => !used.has(p));
-  const bullpen = createBullpen(remaining.filter(p => p.m === 'P'));
-  bullpen.forEach(p => used.add(p));
-  remaining = players.filter(p => !used.has(p));
-  const batter = createBatterCircle(remaining.filter(p => p.m !== 'P'));
-  if (batter) used.add(batter);
-  createBench(players.filter(p => !used.has(p)));
+  const player = shuffle(players)[0], side = Math.random() < .5;
+  addPlayer(player, side ? 34 : 66, 72, 'batter-player');
+  return player;
 }
 
-// 天候と昼夜はページを開くたびに独立してランダム
-const weatherOptions = [
-  { type: 'sunny', label: '晴れ' },
-  { type: 'cloudy', label: '曇り' },
-  { type: 'rain', label: '雨' },
-  { type: 'snow', label: '雪' }
+// 共通の短いセリフ。2～6人にランダムで表示します。
+const speechLines = [
+  'こんにちは！','元気！','ようこそ！','勝ちたい！','疲れた！','考え中…','ご飯食べたい',
+  'いい天気だね','準備OK！','頑張ろう！','調子いいかも','眠い…','お腹すいた','やるぞ！',
+  '落ち着いていこう','楽しみ！','絶好調！','少し休もう','今日もよろしく','集中！','いける！',
+  'ナイスプレー！','いい感じ！','気合十分','水飲みたい','まだまだ！','応援ありがとう','勝利を目指そう！',
+  '今日は何しよう','練習したい','ホーム最高！','わくわくする','ぼちぼち行こう','ちょっと緊張…','任せて！',
+  '腹ペコです','いい夢見たい','頑張るぞー','気分上々！','無理せずね','声出していこう','やったるで！',
+  'ここが好き','楽しんでいこう','休憩も大事','よし、行こう！','今日は勝つ！','いい予感！','平常心…','絶対負けない！'
 ];
-function setupSky() {
-  currentWeather = shuffle(weatherOptions)[0];
-  currentDayNight = Math.random() < 0.5 ? 'day' : 'night';
-  const panel = document.getElementById('skyPanel');
-  panel.dataset.weather = currentWeather.type;
-  panel.dataset.time = currentDayNight;
-  document.getElementById('weatherName').textContent = currentWeather.label;
-  document.getElementById('dayNightName').textContent = currentDayNight === 'day' ? '昼' : '夜';
-  const sunMoon = document.getElementById('sunMoon');
-  sunMoon.textContent = currentDayNight === 'day' ? '☀' : '☾';
-  document.getElementById('skyScene').classList.toggle('night', currentDayNight === 'night');
-  createParticles(currentWeather.type, currentDayNight);
+function rectsOverlap(a,b,pad=4) {
+  return !(a.right + pad <= b.left || b.right + pad <= a.left || a.bottom + pad <= b.top || b.bottom + pad <= a.top);
 }
-function createParticles(type, time) {
-  const area = document.getElementById('weatherParticles');
-  area.innerHTML = '';
-  const stars = document.getElementById('skyStars');
-  stars.innerHTML = '';
-  if (time === 'night') {
-    for (let i = 0; i < 18; i++) {
-      const star = document.createElement('i'); star.className = 'star';
-      star.style.left = `${Math.random()*100}%`; star.style.top = `${Math.random()*85}%`;
-      star.style.animationDelay = `${Math.random()*3}s`; stars.appendChild(star);
+function playerRect(record, stadiumRect) {
+  const rect = record.div.getBoundingClientRect();
+  return { left: rect.left-stadiumRect.left, top: rect.top-stadiumRect.top, right: rect.right-stadiumRect.left, bottom: rect.bottom-stadiumRect.top };
+}
+function addSpeechBubbles() {
+  const stadium = document.getElementById('stadium'), bounds = stadium.getBoundingClientRect();
+  if (!bounds.width || !bounds.height) return;
+  const count = Math.min(playerRecords.length, 2 + Math.floor(Math.random()*5)); // 2～6人
+  const selected = shuffle(playerRecords).slice(0,count);
+  const placed = [];
+  const playerRects = playerRecords.map(r => playerRect(r,bounds));
+  const bubbleW = Math.max(68, Math.min(116, bounds.width * 0.19));
+  const bubbleH = 34;
+  const candidates = [
+    [0,-1.35],[-1.1,-1.1],[1.1,-1.1],[-1.35,0],[1.35,0],[-.9,1.15],[.9,1.15],[0,1.4]
+  ];
+  selected.forEach((record,index) => {
+    const baseX = record.left/100*bounds.width, baseY=record.top/100*bounds.height;
+    const phrase = shuffle(speechLines)[0];
+    let chosen = null;
+    for (const [dx,dy] of shuffle(candidates)) {
+      const x = baseX + dx*(bubbleW*.58), y = baseY + dy*(bubbleH*.8);
+      const box = {left:x-bubbleW/2, right:x+bubbleW/2, top:y-bubbleH/2, bottom:y+bubbleH/2};
+      if (box.left<3 || box.right>bounds.width-3 || box.top<3 || box.bottom>bounds.height-3) continue;
+      if (playerRects.some(r => rectsOverlap(box,r,3))) continue;
+      if (placed.some(r => rectsOverlap(box,r,5))) continue;
+      chosen=box; break;
     }
-  }
-  const count = type === 'rain' ? 42 : type === 'snow' ? 24 : 0;
-  for (let i = 0; i < count; i++) {
-    const particle = document.createElement('i'); particle.className = type === 'rain' ? 'drop' : 'flake';
-    particle.style.left = `${Math.random()*100}%`;
-    particle.style.animationDelay = `${Math.random()*2.8}s`;
-    particle.style.animationDuration = `${type === 'rain' ? 0.55+Math.random()*0.65 : 3+Math.random()*5}s`;
-    area.appendChild(particle);
-  }
+    // 位置が確保できない場合は、プレート直上に寄せる。密集時のみ重なる可能性あり。
+    if (!chosen) chosen={left:Math.max(2,Math.min(bounds.width-bubbleW-2,baseX-bubbleW/2)),top:Math.max(2,baseY-bubbleH-42),right:0,bottom:0};
+    chosen.right=chosen.left+bubbleW; chosen.bottom=chosen.top+bubbleH; placed.push(chosen);
+    const bubble=document.createElement('div'); bubble.className='speech-bubble'; bubble.textContent=phrase;
+    bubble.style.left=`${chosen.left/bounds.width*100}%`; bubble.style.top=`${chosen.top/bounds.height*100}%`; bubble.style.width=`${bubbleW}px`;
+    bubble.dataset.speaker=record.player.n;
+    stadium.appendChild(bubble);
+  });
 }
-function updateClock() {
-  const now = new Date();
-  document.getElementById('realDate').textContent = now.toLocaleDateString('ja-JP', {month:'long',day:'numeric',weekday:'short'});
-  document.getElementById('realClock').textContent = now.toLocaleTimeString('ja-JP', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
-}
-// VLBは544年開始。毎週月曜22時に1年進める（端末内に保存）
-const VLB_START_YEAR = 544;
-function monday22Key(date) {
-  const d = new Date(date); d.setHours(22,0,0,0);
-  const day = d.getDay();
-  d.setDate(d.getDate() - ((day + 6) % 7));
-  if (date.getDay() === 1 && date.getHours() < 22) d.setDate(d.getDate() - 7);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-}
-function updateVlbYear() {
-  const now = new Date(), currentKey = monday22Key(now);
-  let year = Number(localStorage.getItem('vlbYear') || VLB_START_YEAR);
-  let lastKey = localStorage.getItem('vlbLastUpdate');
-  if (!lastKey) { lastKey = currentKey; localStorage.setItem('vlbLastUpdate', lastKey); }
-  else if (lastKey !== currentKey) {
-    const last = new Date(`${lastKey}T22:00:00`), current = new Date(`${currentKey}T22:00:00`);
-    const weeks = Math.max(0, Math.floor((current-last)/(7*24*60*60*1000)));
-    year += weeks; localStorage.setItem('vlbYear', String(year)); localStorage.setItem('vlbLastUpdate', currentKey);
-  }
-  if (!localStorage.getItem('vlbYear')) localStorage.setItem('vlbYear', String(year));
-  document.getElementById('vlbYear').textContent = `VLB ${year}年`;
-}
-async function init() {
-  updateClock(); updateVlbYear(); setupSky();
-  setInterval(() => { updateClock(); updateVlbYear(); }, 1000);
+async function loadPlayers() {
   try {
-    const response = await fetch('data/players.json?v=20261124-11');
-    if (!response.ok) throw new Error('選手データ読み込み失敗');
-    const players = await response.json(); renderPlayers(players);
-  } catch (error) { console.error(error); showToast('選手データの読み込みに失敗しました'); }
+    const response=await fetch('data/players.json?v=20261124-5');
+    if(!response.ok) throw new Error('players.json 読み込み失敗');
+    const players=await response.json(), stadium=document.getElementById('stadium');
+    stadium.innerHTML=''; playerRecords.length=0;
+    const lineup=createLineup(players);
+    if(!lineup){showToast('守備配置を作れません。適性を確認してください');return;}
+    const used=new Set();
+    fieldPositions.forEach(pos=>{const p=lineup.get(pos.code);if(p){used.add(p);addPlayer(p,pos.left,pos.top,'field-player');}});
+    let remaining=players.filter(p=>!used.has(p));
+    const bullpen=createBullpen(remaining.filter(p=>p.m==='P')); bullpen.forEach(p=>used.add(p));
+    remaining=players.filter(p=>!used.has(p));
+    const batter=createBatterCircle(remaining.filter(p=>p.m!=='P')); if(batter)used.add(batter);
+    createBench(players.filter(p=>!used.has(p)));
+    requestAnimationFrame(()=>addSpeechBubbles());
+  } catch(error) {console.error(error);showToast('選手データの読み込みに失敗しました');}
 }
-init();
-document.querySelectorAll('.bottom-nav button').forEach(button => button.addEventListener('click', () => {
-  document.querySelectorAll('.bottom-nav button').forEach(b => b.classList.remove('active'));
+loadPlayers();
+document.querySelectorAll('.bottom-nav button').forEach(button=>button.addEventListener('click',()=>{
+  document.querySelectorAll('.bottom-nav button').forEach(b=>b.classList.remove('active'));
   button.classList.add('active'); showToast(`${button.dataset.page} は今後実装予定です`);
 }));
-const menuBtn = document.getElementById('menuBtn');
-if (menuBtn) menuBtn.addEventListener('click', () => showToast('メニューは今後追加します'));
+const menuBtn=document.getElementById('menuBtn');
+if(menuBtn) menuBtn.addEventListener('click',()=>showToast('メニューは今後追加します'));
