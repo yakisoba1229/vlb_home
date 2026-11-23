@@ -34,5 +34,106 @@
 }
 .p-cf{left:50%;top:30%}.p-lf{left:28%;top:36%}.p-rf{left:72%;top:35%}.p-ss{left:36%;top:52%}.p-2b{left:63%;top:51%}.p-3b{left:25%;top:55%}.p-1b{left:75%;top:55%}.p-p{left:50%;top:62%}.p-c{left:50%;top:81%}.p-bench{left:12%;top:68%;width:clamp(26px,5vw,48px)}
 .bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2}.bottom-nav button{border:0;background:transparent;color:#66736a;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;font-size:18px}.bottom-nav small{font-size:10px}.bottom-nav button.active{color:var(--deep);font-weight:800}.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#183d2c;color:#fff;padding:10px 16px;border-radius:20px;box-shadow:0 5px 18px #0003;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center;font-size:13px;z-index:10}.toast.show{opacity:1}
-@keyframes bob{0%,100%{translate:0 0}50%{translate:0 -2px}}
+/* 選手の自然な待機モーション */
+.player {
+  animation: none;
+}
+
+/* 微小な重心移動 */
+.idle-a {
+  animation: idleA 7.2s ease-in-out infinite;
+}
+
+.idle-b {
+  animation: idleB 8.5s ease-in-out infinite;
+}
+
+.idle-c {
+  animation: idleC 6.4s ease-in-out infinite;
+}
+
+.idle-d {
+  animation: idleD 9.1s ease-in-out infinite;
+}
+
+/* 選手ごとに動きのタイミングをずらす */
+.p-cf  { animation-delay: -2.3s; }
+.p-lf  { animation-delay: -5.1s; }
+.p-rf  { animation-delay: -1.7s; }
+.p-ss  { animation-delay: -6.4s; }
+.p-2b  { animation-delay: -3.8s; }
+.p-3b  { animation-delay: -0.9s; }
+.p-1b  { animation-delay: -4.6s; }
+.p-p   { animation-delay: -2.8s; }
+.p-c   { animation-delay: -7.0s; }
+.p-bench { animation-delay: -1.2s; }
+
+@keyframes idleA {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  35% {
+    translate: 0.5px 0;
+    rotate: 0.25deg;
+  }
+  70% {
+    translate: -0.4px 0;
+    rotate: -0.2deg;
+  }
+}
+
+@keyframes idleB {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  30% {
+    translate: -0.5px 0;
+    rotate: -0.25deg;
+  }
+  65% {
+    translate: 0.4px 0;
+    rotate: 0.2deg;
+  }
+}
+
+@keyframes idleC {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  40% {
+    translate: 0.3px 0;
+    rotate: 0.15deg;
+  }
+  75% {
+    translate: -0.3px 0;
+    rotate: -0.15deg;
+  }
+}
+
+@keyframes idleD {
+  0%, 100% {
+    translate: 0 0;
+    rotate: 0deg;
+  }
+  45% {
+    translate: -0.3px 0;
+    rotate: -0.15deg;
+  }
+  80% {
+    translate: 0.3px 0;
+    rotate: 0.15deg;
+  }
+}
+
+/* 動きを抑えたい端末・設定への配慮 */
+@media (prefers-reduced-motion: reduce) {
+  .player {
+    animation: none !important;
+    translate: 0 0 !important;
+    rotate: 0deg !important;
+  }
+}
 @media(min-width:700px){.stadium-wrap{padding:14px}.stadium{border-radius:14px;max-height:calc(100vh - 150px);width:auto;height:min(78vh,760px);aspect-ratio:1/1}.bottom-nav{padding:10px}.topbar{padding:14px 22px}}
