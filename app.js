@@ -141,6 +141,13 @@ function addPlayer(player, left, top, area = '') {
   label.className = 'player-name';
   label.textContent = player.n;
 
+  // 名前の長さに応じて文字サイズを変更
+  if (player.n.length >= 9) {
+    label.classList.add('name-very-long');
+  } else if (player.n.length >= 6) {
+    label.classList.add('name-long');
+  }
+
   div.append(img, label);
 
   div.addEventListener('click', () => {
