@@ -18,28 +18,21 @@ const fieldPositions = [
   { code: '2B', left: 62, top: 51 },
   { code: '3B', left: 25, top: 57 },
   { code: '1B', left: 75, top: 57 },
-  { code: 'P',  left: 50, top: 63 },
-  { code: 'C',  left: 50, top: 80 }
+  { code: 'P', left: 50, top: 63 },
+  { code: 'C', left: 50, top: 80 }
 ];
 
 const OF = ['LF', 'CF', 'RF'];
 const IF = ['1B', '2B', '3B', 'SS'];
 
 function canPlay(player, position) {
-  const matches = code =>
-    player.m === code || player.s.includes(code);
-
-  if (OF.includes(position)) {
-    return matches('OF');
-  }
-
+  const matches = code => player.m === code || player.s.includes(code);
+  if (OF.includes(position)) return matches('OF');
   return matches(position);
 }
 
 function weight(player, position) {
-  if (player.m === position || (player.m === 'OF' && OF.includes(position))) {
-    return 2;
-  }
+  if (player.m === position || (player.m === 'OF' && OF.includes(position))) return 2;
   return 1;
 }
 
@@ -63,23 +56,12 @@ function weightedOrder(list, position) {
   return result;
 }
 
-function shuffle(list) {
-  const a = [...list];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// 適性を守りながら9ポジションを重複なく埋める
 function createLineup(players) {
   const result = new Map();
 
   function solve(positions, remaining) {
     if (!positions.length) return true;
 
-    // 選択可能人数が最も少ないポジションを先に埋める
     const ranked = positions.map(pos => ({
       pos,
       candidates: remaining.filter(p => canPlay(p, pos.code))
@@ -95,7 +77,6 @@ function createLineup(players) {
       const nextPositions = positions.filter(p => p !== target.pos);
 
       if (solve(nextPositions, nextPlayers)) return true;
-
       result.delete(target.pos.code);
     }
 
@@ -105,13 +86,13 @@ function createLineup(players) {
   return solve([...fieldPositions], [...players]) ? result : null;
 }
 
-// プレートの種類を判定
+// プレート画像名を決定
 function getPlate(player) {
-  const group = code => {
-    if (code === 'P') return 'p';
-    if (code === 'C') return 'c';
-    if (code === 'OF') return 'f';
-    if (IF.includes(code)) return 'i';
+  const group = position => {
+    if (position === 'P') return 'p';
+    if (position === 'C') return 'c';
+    if (position === 'OF') return 'o';
+    if (IF.includes(position)) return 'i';
     return null;
   };
 
@@ -121,26 +102,25 @@ function getPlate(player) {
   if (main === 'p') return 'p';
 
   if (main === 'i') {
-    if (subs.includes('f')) return 'i_f';
+    if (subs.includes('o')) return 'i_o';
     if (subs.includes('c')) return 'i_c';
     return 'i';
   }
 
-  if (main === 'f') {
-    if (subs.includes('i')) return 'f_i';
-    return 'f';
+  if (main === 'o') {
+    if (subs.includes('i')) return 'o_i';
+    return 'o';
   }
 
   if (main === 'c') {
     if (subs.includes('i')) return 'c_i';
-    if (subs.includes('f')) return 'c_f';
+    if (subs.includes('o')) return 'c_o';
     return 'c';
   }
 
   return 'i';
 }
 
-// プレートを配置
 function addPlayer(player, left, top, area = '') {
   const div = document.createElement('div');
   div.className = `player ${area}`;
@@ -151,9 +131,10 @@ function addPlayer(player, left, top, area = '') {
   const img = document.createElement('img');
   img.src = `assets/${getPlate(player)}.gif`;
   img.alt = `${player.n} プレート`;
+
   img.onerror = () => {
-    img.style.display = 'none';
     console.error('画像が見つかりません:', img.src);
+    img.style.display = 'none';
   };
 
   const label = document.createElement('span');
@@ -161,6 +142,7 @@ function addPlayer(player, left, top, area = '') {
   label.textContent = player.n;
 
   div.append(img, label);
+
   div.addEventListener('click', () => {
     showToast(`${player.n}：プロフィールは今後実装予定`);
   });
@@ -168,17 +150,36 @@ function addPlayer(player, left, top, area = '') {
   document.getElementById('stadium').appendChild(div);
 }
 
-// ベンチ：左右最大5人
+function shuffle(list) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ベンチ：左右に分けて最大5人ずつ
 function createBench(players) {
   const shuffled = shuffle(players);
   const left = shuffled.slice(0, 5);
   const right = shuffled.slice(5, 10);
 
-  left.forEach((p, i) => addPlayer(p, 8, 28 + i * 10, 'bench-player'));
-  right.forEach((p, i) => addPlayer(p, 92, 28 + i * 10, 'bench-player'));
+  function placeSide(list, side) {
+    const x = side === 'left' ? 17 : 83;
+
+    list.forEach((p, i) => {
+      const row = Math.floor(i / 2);
+      const col = i % 2;
+      addPlayer(p, x + (col ? 4 : -4), 83 + row * 4.5, 'bench-player');
+    });
+  }
+
+  placeSide(left, 'left');
+  placeSide(right, 'right');
 }
 
-// ブルペン：左右2人ずつ
+// ブルペン：左右に投手2人ずつ
 function createBullpen(players) {
   const selected = shuffle(players).slice(0, 4);
 
@@ -186,29 +187,39 @@ function createBullpen(players) {
     const leftSide = i < 2;
     const slot = i % 2;
 
-    addPlayer(
-      p,
-      leftSide ? 17 : 83,
-      72 + slot * 9,
-      'bullpen-player'
-    );
+    const x = leftSide
+      ? (slot === 0 ? 6 : 12)
+      : (slot === 0 ? 88 : 94);
+
+    const y = 40 + slot * 4;
+
+    addPlayer(p, x, y, 'bullpen-player');
   });
 
   return selected;
 }
 
-// バッターズサークル：野手1人
+// バッターズサークル：左右どちらかに1人
 function createBatterCircle(players) {
-  if (!players.length) return;
+  if (!players.length) return null;
 
   const p = shuffle(players)[0];
-  addPlayer(p, 50, 91, 'batter-player');
+  const leftSide = Math.random() < 0.5;
+
+  addPlayer(
+    p,
+    leftSide ? 28 : 72,
+    59,
+    'batter-player'
+  );
+
   return p;
 }
 
 async function loadPlayers() {
   try {
-    const response = await fetch('data/players.json?v=4');
+    const response = await fetch('data/players.json?v=20261124-3');
+
     if (!response.ok) throw new Error('players.json 読み込み失敗');
 
     const players = await response.json();
@@ -216,6 +227,7 @@ async function loadPlayers() {
     stadium.innerHTML = '';
 
     const lineup = createLineup(players);
+
     if (!lineup) {
       showToast('守備配置を作れません。適性を確認してください');
       return;
@@ -223,31 +235,32 @@ async function loadPlayers() {
 
     const used = new Set();
 
-    // 守備9人
+    // スタメン
     fieldPositions.forEach(pos => {
       const player = lineup.get(pos.code);
-      if (!player) return;
-
-      used.add(player);
-      addPlayer(player, pos.left, pos.top, 'field-player');
+      if (player) {
+        used.add(player);
+        addPlayer(player, pos.left, pos.top, 'field-player');
+      }
     });
 
-    // 残りの選手
+    // 残り選手
     let remaining = players.filter(p => !used.has(p));
 
-    // ブルペン投手4人
+    // ブルペン投手
     const pitchers = remaining.filter(p => p.m === 'P');
     const bullpen = createBullpen(pitchers);
     bullpen.forEach(p => used.add(p));
 
+    // 残り野手
     remaining = players.filter(p => !used.has(p));
-
-    // バッターズサークルは残り野手から
     const batters = remaining.filter(p => p.m !== 'P');
+
+    // バッターズサークル
     const batter = createBatterCircle(batters);
     if (batter) used.add(batter);
 
-    // 残った選手をベンチ
+    // ベンチ
     remaining = players.filter(p => !used.has(p));
     createBench(remaining);
 
@@ -264,13 +277,16 @@ document.querySelectorAll('.bottom-nav button').forEach(button => {
   button.addEventListener('click', () => {
     document.querySelectorAll('.bottom-nav button')
       .forEach(b => b.classList.remove('active'));
+
     button.classList.add('active');
-    showToast(`${button.dataset.page || button.textContent.trim()} は今後実装予定`);
+    showToast(`${button.dataset.page} は今後実装予定です`);
   });
 });
 
 // メニューボタン
 const menuBtn = document.getElementById('menuBtn');
 if (menuBtn) {
-  menuBtn.addEventListener('click', () => showToast('メニューは今後追加します'));
+  menuBtn.addEventListener('click', () => {
+    showToast('メニューは今後追加します');
+  });
 }
