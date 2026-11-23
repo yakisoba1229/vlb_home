@@ -3,351 +3,257 @@ const toast = document.getElementById('toast');
 let toastTimer;
 
 function showToast(message) {
+  if (!toast) return;
   toast.textContent = message;
   toast.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 1800);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
 }
 
-// 守備位置
 const fieldPositions = [
-  { code: 'CF', name: '中堅手', className: 'p-cf' },
-  { code: 'LF', name: '左翼手', className: 'p-lf' },
-  { code: 'RF', name: '右翼手', className: 'p-rf' },
-  { code: 'SS', name: '遊撃手', className: 'p-ss' },
-  { code: '2B', name: '二塁手', className: 'p-2b' },
-  { code: '3B', name: '三塁手', className: 'p-3b' },
-  { code: '1B', name: '一塁手', className: 'p-1b' },
-  { code: 'P', name: '投手', className: 'p-p' },
-  { code: 'C', name: '捕手', className: 'p-c' }
+  { code: 'CF', left: 50, top: 27 },
+  { code: 'LF', left: 27, top: 35 },
+  { code: 'RF', left: 73, top: 35 },
+  { code: 'SS', left: 38, top: 51 },
+  { code: '2B', left: 62, top: 51 },
+  { code: '3B', left: 25, top: 57 },
+  { code: '1B', left: 75, top: 57 },
+  { code: 'P',  left: 50, top: 63 },
+  { code: 'C',  left: 50, top: 80 }
 ];
 
-const outfieldCodes = ['LF', 'CF', 'RF'];
-const infieldCodes = ['1B', '2B', '3B', 'SS'];
+const OF = ['LF', 'CF', 'RF'];
+const IF = ['1B', '2B', '3B', 'SS'];
 
-// 適性があるか
-function canPlay(player, code) {
-  const mainOK =
-    player.m === code ||
-    (player.m === 'OF' && outfieldCodes.includes(code));
+function canPlay(player, position) {
+  const matches = code =>
+    player.m === code || player.s.includes(code);
 
-  const subOK =
-    player.s.includes(code) ||
-    (player.s.includes('OF') && outfieldCodes.includes(code));
+  if (OF.includes(position)) {
+    return matches('OF');
+  }
 
-  return mainOK || subOK;
+  return matches(position);
 }
 
-// メイン適性なら2倍の重み
-function positionWeight(player, code) {
-  const mainOK =
-    player.m === code ||
-    (player.m === 'OF' && outfieldCodes.includes(code));
-
-  return mainOK ? 2 : 1;
+function weight(player, position) {
+  if (player.m === position || (player.m === 'OF' && OF.includes(position))) {
+    return 2;
+  }
+  return 1;
 }
 
-// 重み付きでランダムに並べる
-function weightedShuffle(items, weightFunction) {
-  const pool = [...items];
+function weightedOrder(list, position) {
+  const pool = [...list];
   const result = [];
 
   while (pool.length) {
-    const total = pool.reduce(
-      (sum, item) => sum + weightFunction(item),
-      0
-    );
+    const total = pool.reduce((sum, p) => sum + weight(p, position), 0);
+    let r = Math.random() * total;
 
-    let random = Math.random() * total;
-    let selectedIndex = 0;
+    let index = pool.findIndex(p => {
+      r -= weight(p, position);
+      return r < 0;
+    });
 
-    for (let i = 0; i < pool.length; i++) {
-      random -= weightFunction(pool[i]);
-
-      if (random <= 0) {
-        selectedIndex = i;
-        break;
-      }
-    }
-
-    result.push(pool.splice(selectedIndex, 1)[0]);
+    if (index < 0) index = pool.length - 1;
+    result.push(pool.splice(index, 1)[0]);
   }
 
   return result;
 }
 
-// 9つの守備位置を重複なく埋める
-function makeStartingLineup(players) {
-  const assignments = new Map();
+function shuffle(list) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
-  function search(remainingPositions, remainingPlayers) {
-    if (remainingPositions.length === 0) {
-      return true;
-    }
+// 適性を守りながら9ポジションを重複なく埋める
+function createLineup(players) {
+  const result = new Map();
 
-    // 候補が少ない守備位置から決める
-    const candidatesByPosition = remainingPositions.map(position => ({
-      position,
-      candidates: remainingPlayers.filter(player =>
-        canPlay(player, position.code)
-      )
-    }));
+  function solve(positions, remaining) {
+    if (!positions.length) return true;
 
-    candidatesByPosition.sort(
-      (a, b) => a.candidates.length - b.candidates.length
-    );
+    // 選択可能人数が最も少ないポジションを先に埋める
+    const ranked = positions.map(pos => ({
+      pos,
+      candidates: remaining.filter(p => canPlay(p, pos.code))
+    })).sort((a, b) => a.candidates.length - b.candidates.length);
 
-    const selected = candidatesByPosition[0];
+    const target = ranked[0];
+    if (!target.candidates.length) return false;
 
-    if (selected.candidates.length === 0) {
-      return false;
-    }
+    for (const player of weightedOrder(target.candidates, target.pos.code)) {
+      result.set(target.pos.code, player);
 
-    const orderedCandidates = weightedShuffle(
-      selected.candidates,
-      player => positionWeight(player, selected.position.code)
-    );
+      const nextPlayers = remaining.filter(p => p !== player);
+      const nextPositions = positions.filter(p => p !== target.pos);
 
-    for (const player of orderedCandidates) {
-      assignments.set(selected.position.code, player);
+      if (solve(nextPositions, nextPlayers)) return true;
 
-      const nextPlayers = remainingPlayers.filter(
-        p => p !== player
-      );
-
-      const nextPositions = remainingPositions.filter(
-        p => p.code !== selected.position.code
-      );
-
-      if (search(nextPositions, nextPlayers)) {
-        return true;
-      }
-
-      assignments.delete(selected.position.code);
+      result.delete(target.pos.code);
     }
 
     return false;
   }
 
-  const success = search(fieldPositions, players);
-
-  return success ? assignments : null;
+  return solve([...fieldPositions], [...players]) ? result : null;
 }
 
-// メイン・サブからプレート画像名を決める
+// プレートの種類を判定
 function getPlate(player) {
-  const group = position => {
-    if (position === 'P') return 'p';
-    if (position === 'C') return 'c';
-    if (position === 'OF') return 'o';
-    if (infieldCodes.includes(position)) return 'i';
+  const group = code => {
+    if (code === 'P') return 'p';
+    if (code === 'C') return 'c';
+    if (code === 'OF') return 'f';
+    if (IF.includes(code)) return 'i';
     return null;
   };
 
-  const mainGroup = group(player.m);
-  const subGroups = [...new Set(player.s.map(group).filter(Boolean))];
+  const main = group(player.m);
+  const subs = [...new Set(player.s.map(group).filter(Boolean))];
 
-  if (mainGroup === 'p') return 'p';
+  if (main === 'p') return 'p';
 
-  if (mainGroup === 'i') {
-    if (subGroups.includes('o')) return 'i_o';
-    if (subGroups.includes('c')) return 'i_c';
+  if (main === 'i') {
+    if (subs.includes('f')) return 'i_f';
+    if (subs.includes('c')) return 'i_c';
     return 'i';
   }
 
-  if (mainGroup === 'o') {
-    if (subGroups.includes('i')) return 'o_i';
-    return 'o';
+  if (main === 'f') {
+    if (subs.includes('i')) return 'f_i';
+    return 'f';
   }
 
-  if (mainGroup === 'c') {
-    if (subGroups.includes('i')) return 'c_i';
-    if (subGroups.includes('o')) return 'c_o';
+  if (main === 'c') {
+    if (subs.includes('i')) return 'c_i';
+    if (subs.includes('f')) return 'c_f';
     return 'c';
   }
 
   return 'i';
 }
 
-// 選手プレートを作る
-function createPlayer(player, position, usedPlayers) {
+// プレートを配置
+function addPlayer(player, left, top, area = '') {
   const div = document.createElement('div');
-
-  div.className = `player ${position.className}`;
-  div.dataset.player = player.n;
-
-  if (position.left !== undefined) {
-    div.style.left = position.left + '%';
-    div.style.top = position.top + '%';
-  }
+  div.className = `player ${area}`;
+  div.style.left = `${left}%`;
+  div.style.top = `${top}%`;
+  div.dataset.name = player.n;
 
   const img = document.createElement('img');
-  img.src = `assets/${getPlate(player)}.png`;
-  img.alt = '';
-
+  img.src = `assets/${getPlate(player)}.gif`;
+  img.alt = `${player.n} プレート`;
   img.onerror = () => {
-    console.error('プレート画像が見つかりません:', img.src);
+    img.style.display = 'none';
+    console.error('画像が見つかりません:', img.src);
   };
 
-  const name = document.createElement('span');
-  name.className = 'player-name';
-  name.textContent = player.n;
+  const label = document.createElement('span');
+  label.className = 'player-name';
+  label.textContent = player.n;
 
-  div.appendChild(img);
-  div.appendChild(name);
-
+  div.append(img, label);
   div.addEventListener('click', () => {
-    showToast(`${player.n}：プロフィール画面はこれから実装します`);
+    showToast(`${player.n}：プロフィールは今後実装予定`);
   });
 
   document.getElementById('stadium').appendChild(div);
-  usedPlayers.add(player);
 }
 
-// ランダムな並びにする
-function shuffle(items) {
-  const result = [...items];
-
-  for (let i = result.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-
-  return result;
-}
-
-// ベンチを左右に分ける
-function createBench(players, usedPlayers) {
+// ベンチ：左右最大5人
+function createBench(players) {
   const shuffled = shuffle(players);
+  const left = shuffled.slice(0, 5);
+  const right = shuffled.slice(5, 10);
 
-  const leftCount = Math.ceil(shuffled.length / 2);
-  const leftPlayers = shuffled.slice(0, leftCount);
-  const rightPlayers = shuffled.slice(leftCount);
-
-  function addSide(list, side) {
-    list.slice(0, 5).forEach((player, index) => {
-      createPlayer(
-        player,
-        {
-          className: 'p-extra p-bench',
-          left: side === 'left' ? 7 : 93,
-          top: 36 + index * 9
-        },
-        usedPlayers
-      );
-    });
-  }
-
-  addSide(leftPlayers, 'left');
-  addSide(rightPlayers, 'right');
+  left.forEach((p, i) => addPlayer(p, 8, 28 + i * 10, 'bench-player'));
+  right.forEach((p, i) => addPlayer(p, 92, 28 + i * 10, 'bench-player'));
 }
 
-// ブルペンを左右2人ずつ配置
-function createBullpen(players, usedPlayers) {
+// ブルペン：左右2人ずつ
+function createBullpen(players) {
   const selected = shuffle(players).slice(0, 4);
 
-  selected.forEach((player, index) => {
-    const side = index < 2 ? 'left' : 'right';
-    const sideIndex = index % 2;
+  selected.forEach((p, i) => {
+    const leftSide = i < 2;
+    const slot = i % 2;
 
-    createPlayer(
-      player,
-      {
-        className: 'p-extra p-bullpen',
-        left: side === 'left' ? 19 : 81,
-        top: 78 + sideIndex * 9
-      },
-      usedPlayers
+    addPlayer(
+      p,
+      leftSide ? 17 : 83,
+      72 + slot * 9,
+      'bullpen-player'
     );
   });
 
   return selected;
 }
 
-// バッターズサークル
-function createBatterCircle(players, usedPlayers) {
+// バッターズサークル：野手1人
+function createBatterCircle(players) {
   if (!players.length) return;
 
-  const player = shuffle(players)[0];
-
-  createPlayer(
-    player,
-    {
-      className: 'p-extra p-batter',
-      left: 50,
-      top: 92
-    },
-    usedPlayers
-  );
+  const p = shuffle(players)[0];
+  addPlayer(p, 50, 91, 'batter-player');
+  return p;
 }
 
-// 選手データを読み込む
 async function loadPlayers() {
   try {
-    const response = await fetch('data/players.json');
-
-    if (!response.ok) {
-      throw new Error('選手データの読み込みに失敗');
-    }
+    const response = await fetch('data/players.json?v=4');
+    if (!response.ok) throw new Error('players.json 読み込み失敗');
 
     const players = await response.json();
     const stadium = document.getElementById('stadium');
-
     stadium.innerHTML = '';
 
-    // 守備位置を抽選
-    const lineup = makeStartingLineup(players);
-
+    const lineup = createLineup(players);
     if (!lineup) {
-      showToast('守備位置を埋められません。適性を確認してください');
+      showToast('守備配置を作れません。適性を確認してください');
       return;
     }
 
-    const usedPlayers = new Set();
+    const used = new Set();
 
-    // スターティングメンバー
-    fieldPositions.forEach(position => {
-      const player = lineup.get(position.code);
+    // 守備9人
+    fieldPositions.forEach(pos => {
+      const player = lineup.get(pos.code);
+      if (!player) return;
 
-      if (player) {
-        createPlayer(player, position, usedPlayers);
-      }
+      used.add(player);
+      addPlayer(player, pos.left, pos.top, 'field-player');
     });
 
     // 残りの選手
-    const remaining = players.filter(
-      player => !usedPlayers.has(player)
-    );
+    let remaining = players.filter(p => !used.has(p));
 
-    // ブルペン：残り投手から4人
-    const remainingPitchers = remaining.filter(
-      player => player.m === 'P'
-    );
+    // ブルペン投手4人
+    const pitchers = remaining.filter(p => p.m === 'P');
+    const bullpen = createBullpen(pitchers);
+    bullpen.forEach(p => used.add(p));
 
-    const bullpen = createBullpen(
-      remainingPitchers,
-      usedPlayers
-    );
+    remaining = players.filter(p => !used.has(p));
 
-    // バッターズサークル：残り野手から1人
-    const remainingFielders = remaining.filter(
-      player => player.m !== 'P' && player.m !== null
-    );
+    // バッターズサークルは残り野手から
+    const batters = remaining.filter(p => p.m !== 'P');
+    const batter = createBatterCircle(batters);
+    if (batter) used.add(batter);
 
-    createBatterCircle(remainingFielders, usedPlayers);
-
-    // ここまでで選ばれなかった選手をベンチへ
-    const benchPlayers = players.filter(
-      player => !usedPlayers.has(player)
-    );
-
-    createBench(benchPlayers, usedPlayers);
+    // 残った選手をベンチ
+    remaining = players.filter(p => !used.has(p));
+    createBench(remaining);
 
   } catch (error) {
     console.error(error);
-    showToast('選手データを読み込めませんでした');
+    showToast('選手データの読み込みに失敗しました');
   }
 }
 
@@ -358,13 +264,13 @@ document.querySelectorAll('.bottom-nav button').forEach(button => {
   button.addEventListener('click', () => {
     document.querySelectorAll('.bottom-nav button')
       .forEach(b => b.classList.remove('active'));
-
     button.classList.add('active');
-    showToast(`${button.dataset.page} は今後実装予定です`);
+    showToast(`${button.dataset.page || button.textContent.trim()} は今後実装予定`);
   });
 });
 
 // メニューボタン
-document.getElementById('menuBtn').addEventListener('click', () => {
-  showToast('メニューは今後追加します');
-});
+const menuBtn = document.getElementById('menuBtn');
+if (menuBtn) {
+  menuBtn.addEventListener('click', () => showToast('メニューは今後追加します'));
+}
