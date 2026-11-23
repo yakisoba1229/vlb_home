@@ -1,16 +1,18 @@
 
 const toast = document.getElementById('toast');
 let toastTimer;
+let allPlayers = [];
+let featuredPlayer = null;
+let currentWeather = null;
 
 function showToast(message) {
   if (!toast) return;
   toast.textContent = message;
   toast.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+  toastTimer = setTimeout(() => toast.classList.remove('show'), 2200);
 }
 
-// 守備位置
 const fieldPositions = [
   { code: 'CF', left: 51, top: 36 },
   { code: 'LF', left: 27, top: 42 },
@@ -87,7 +89,7 @@ function createLineup(players) {
   return solve([...fieldPositions], [...players]) ? result : null;
 }
 
-// プレート画像の種類
+// プレート画像を判定
 function getPlate(player) {
   const group = position => {
     if (position === 'P') return 'p';
@@ -122,7 +124,7 @@ function getPlate(player) {
   return 'i';
 }
 
-// 選手表示
+// 選手を表示
 function addPlayer(player, left, top, area = '') {
   const div = document.createElement('div');
   div.className = `player ${area}`;
@@ -143,21 +145,40 @@ function addPlayer(player, left, top, area = '') {
   label.className = 'player-name';
   label.textContent = player.n;
 
-  if (player.n.length >= 8) {
-    label.classList.add('name-very-long');
-  } else if (player.n.length >= 5) {
-    label.classList.add('name-long');
-  }
-
   div.append(img, label);
 
+  // 注目選手の表示
+  if (player === featuredPlayer) {
+    div.classList.add('featured');
+    const badge = document.createElement('span');
+    badge.className = 'featured-badge';
+    badge.textContent = '注目';
+    div.appendChild(badge);
+  }
+
+  // 名前をプレート内に収める
+  function fitName() {
+    label.style.fontSize = '12px';
+
+    const maxWidth = div.clientWidth * 0.92;
+    let size = 12;
+
+    while (label.scrollWidth > maxWidth && size > 5) {
+      size -= 0.5;
+      label.style.fontSize = `${size}px`;
+    }
+  }
+
   div.addEventListener('click', () => {
+    div.classList.toggle('player-selected');
     showToast(`${player.n}：プロフィールは今後実装予定`);
   });
 
   document.getElementById('stadium').appendChild(div);
+  fitName();
 }
 
+// ランダム
 function shuffle(list) {
   const a = [...list];
 
@@ -169,21 +190,13 @@ function shuffle(list) {
   return a;
 }
 
-// ベンチ：黒点に沿った左右5人ずつの配置
+// ベンチ配置
 const benchLeftPositions = [
-  [7, 63],
-  [10, 68],
-  [16, 73],
-  [20, 77],
-  [25, 82]
+  [7, 63], [10, 68], [16, 73], [20, 77], [25, 82]
 ];
 
 const benchRightPositions = [
-  [90, 65],
-  [87, 69],
-  [85, 73],
-  [81, 77],
-  [75, 82]
+  [90, 65], [87, 69], [85, 73], [81, 77], [75, 82]
 ];
 
 function createBench(players) {
@@ -191,7 +204,6 @@ function createBench(players) {
   const left = [];
   const right = [];
 
-  // 左右交互に分配して人数差を小さくする
   shuffled.forEach((player, i) => {
     if (i % 2 === 0) left.push(player);
     else right.push(player);
@@ -208,12 +220,9 @@ function createBench(players) {
   });
 }
 
-// ブルペン：左右のピンク色の区画
+// ブルペン
 const bullpenPositions = [
-  [7, 48],
-  [10, 52],
-  [96, 48],
-  [94, 52]
+  [7, 48], [10, 52], [96, 48], [94, 52]
 ];
 
 function createBullpen(players) {
@@ -227,7 +236,7 @@ function createBullpen(players) {
   return selected;
 }
 
-// バッターズサークル：左右の白い円
+// バッターズサークル
 function createBatterCircle(players) {
   if (!players.length) return null;
 
@@ -244,62 +253,186 @@ function createBatterCircle(players) {
   return player;
 }
 
-async function loadPlayers() {
-  try {
-    const response = await fetch('data/players.json?v=20261124-4');
+// 注目選手をランダム選出
+function chooseFeaturedPlayer(players) {
+  featuredPlayer = shuffle(players)[0];
+}
 
-    if (!response.ok) {
-      throw new Error('players.json 読み込み失敗');
+// 球場メッセージ
+const messages = [
+  'プランクトンのたまご、本日も球場へ！',
+  '今日の注目選手をチェックしよう。',
+  '新しい配置でチームを眺めてみよう。',
+  '球場には今日も選手たちが集まっています。',
+  'あなたのチームの歴史を刻もう。',
+  '今日もプランクトンのたまごを応援しよう！',
+  'さあ、球場の様子を見てみよう！'
+];
+
+function showRandomMessage() {
+  const message = shuffle(messages)[0];
+  document.getElementById('stadiumMessage').textContent = message;
+}
+
+// 選手の配置を作り直す
+function renderPlayers() {
+  const stadium = document.getElementById('stadium');
+  stadium.innerHTML = '';
+
+  chooseFeaturedPlayer(allPlayers);
+
+  const lineup = createLineup(allPlayers);
+
+  if (!lineup) {
+    showToast('守備配置を作れません。適性を確認してください');
+    return;
+  }
+
+  const used = new Set();
+
+  // スタメン
+  fieldPositions.forEach(pos => {
+    const player = lineup.get(pos.code);
+    if (player) {
+      used.add(player);
+      addPlayer(player, pos.left, pos.top, `field-player ${pos.code}`);
     }
+  });
 
-    const players = await response.json();
-    const stadium = document.getElementById('stadium');
-    stadium.innerHTML = '';
+  let remaining = allPlayers.filter(p => !used.has(p));
 
-    const lineup = createLineup(players);
+  // ブルペン
+  const pitchers = remaining.filter(p => p.m === 'P');
+  const bullpen = createBullpen(pitchers);
+  bullpen.forEach(p => used.add(p));
 
-    if (!lineup) {
-      showToast('守備配置を作れません。適性を確認してください');
-      return;
-    }
+  // バッターズサークル
+  remaining = allPlayers.filter(p => !used.has(p));
+  const batters = remaining.filter(p => p.m !== 'P');
+  const batter = createBatterCircle(batters);
+  if (batter) used.add(batter);
 
-    const used = new Set();
+  // ベンチ
+  remaining = allPlayers.filter(p => !used.has(p));
+  createBench(remaining);
+}
 
-    // スタメン9人
-    fieldPositions.forEach(pos => {
-      const player = lineup.get(pos.code);
+// 天候
+const weatherList = [
+  { type: 'sunny', name: '晴れ', icon: '☀️' },
+  { type: 'cloudy', name: '曇り', icon: '☁️' },
+  { type: 'rain', name: '雨', icon: '🌧️' },
+  { type: 'snow', name: '雪', icon: '❄️' }
+];
 
-      if (player) {
-        used.add(player);
-        addPlayer(player, pos.left, pos.top, 'field-player');
-      }
+function setWeather(random = true) {
+  if (random || !currentWeather) {
+    currentWeather = shuffle(weatherList)[0];
+  }
+
+  const hour = new Date().getHours();
+  const isNight = hour < 6 || hour >= 18;
+
+  const area = document.getElementById('weatherArea');
+  const main = document.getElementById('weatherMain');
+  const name = document.getElementById('weatherName');
+  const dayNight = document.getElementById('dayNight');
+
+  area.className = `weather-area weather-${currentWeather.type} ${isNight ? 'night' : 'day'}`;
+  main.textContent = isNight && currentWeather.type === 'sunny'
+    ? '🌙'
+    : currentWeather.icon;
+
+  name.textContent = isNight && currentWeather.type === 'sunny'
+    ? '晴れ・夜'
+    : currentWeather.name;
+
+  dayNight.textContent = isNight ? 'NIGHT' : 'DAY';
+}
+
+// 時計と日付
+function updateClock() {
+  const now = new Date();
+
+  document.getElementById('realDate').textContent =
+    now.toLocaleDateString('ja-JP', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+      weekday: 'short'
     });
 
-    let remaining = players.filter(p => !used.has(p));
+  document.getElementById('realClock').textContent =
+    now.toLocaleTimeString('ja-JP', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
 
-    // ブルペン
-    const pitchers = remaining.filter(p => p.m === 'P');
-    const bullpen = createBullpen(pitchers);
-    bullpen.forEach(p => used.add(p));
+  // 昼夜の判定も更新
+  setWeather(false);
+}
 
-    // バッターズサークル
-    remaining = players.filter(p => !used.has(p));
-    const batters = remaining.filter(p => p.m !== 'P');
+// VLB年設定
+function updateVlbYear() {
+  const saved = localStorage.getItem('vlbYear');
+  document.getElementById('vlbYear').textContent =
+    saved ? `VLB ${saved}年` : 'VLB年 未設定';
+}
 
-    const batter = createBatterCircle(batters);
-    if (batter) used.add(batter);
+document.getElementById('yearBtn').addEventListener('click', () => {
+  const current = localStorage.getItem('vlbYear') || '';
+  const value = prompt('VLBの年を入力してください（例：2047）', current);
 
-    // ベンチ
-    remaining = players.filter(p => !used.has(p));
-    createBench(remaining);
+  if (value === null) return;
 
+  const cleaned = value.trim();
+
+  if (!cleaned) {
+    localStorage.removeItem('vlbYear');
+  } else {
+    localStorage.setItem('vlbYear', cleaned);
+  }
+
+  updateVlbYear();
+  showToast(cleaned ? `VLB ${cleaned}年に設定しました` : 'VLB年を解除しました');
+});
+
+// ボタン
+document.getElementById('rerollBtn').addEventListener('click', () => {
+  renderPlayers();
+  showRandomMessage();
+  showToast('選手配置と注目選手を変更しました');
+});
+
+document.getElementById('weatherBtn').addEventListener('click', () => {
+  setWeather(true);
+  showToast(`天候を「${currentWeather.name}」に変更しました`);
+});
+
+// 初期化
+async function init() {
+  updateVlbYear();
+  updateClock();
+  setWeather(true);
+
+  setInterval(updateClock, 1000);
+
+  try {
+    const response = await fetch('data/players.json?v=20261124-10');
+
+    if (!response.ok) throw new Error('選手データ読み込み失敗');
+
+    allPlayers = await response.json();
+    renderPlayers();
+    showRandomMessage();
   } catch (error) {
     console.error(error);
     showToast('選手データの読み込みに失敗しました');
   }
 }
 
-loadPlayers();
+init();
 
 // 下部メニュー
 document.querySelectorAll('.bottom-nav button').forEach(button => {
