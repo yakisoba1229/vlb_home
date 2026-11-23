@@ -34,54 +34,59 @@
 }
 .p-cf{left:50%;top:30%}.p-lf{left:28%;top:36%}.p-rf{left:72%;top:35%}.p-ss{left:36%;top:52%}.p-2b{left:63%;top:51%}.p-3b{left:25%;top:55%}.p-1b{left:75%;top:55%}.p-p{left:50%;top:62%}.p-c{left:50%;top:81%}.p-bench{left:12%;top:68%;width:clamp(26px,5vw,48px)}
 .bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2}.bottom-nav button{border:0;background:transparent;color:#66736a;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;font-size:18px}.bottom-nav small{font-size:10px}.bottom-nav button.active{color:var(--deep);font-weight:800}.toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#183d2c;color:#fff;padding:10px 16px;border-radius:20px;box-shadow:0 5px 18px #0003;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center;font-size:13px;z-index:10}.toast.show{opacity:1}
-/* 選手ごとの待機モーション */
+/* ===== 選手ごとの待機モーション ===== */
+
 .player {
   animation: none;
   transform-origin: center bottom;
 }
 
-/* 守備位置ごとに異なる動き */
+/* 外野手：ゆったりした重心移動 */
 .p-cf {
-  animation: idle1 6.8s ease-in-out infinite;
+  animation: idle1 5.8s ease-in-out infinite;
 }
 
 .p-lf {
-  animation: idle2 8.1s ease-in-out infinite;
+  animation: idle2 7.1s ease-in-out infinite;
 }
 
 .p-rf {
-  animation: idle3 7.4s ease-in-out infinite;
+  animation: idle3 6.3s ease-in-out infinite;
 }
 
+/* 内野手：少し動きを強める */
 .p-ss {
-  animation: idle2 6.3s ease-in-out infinite;
+  animation: idle2 5.5s ease-in-out infinite;
 }
 
 .p-2b {
-  animation: idle1 8.7s ease-in-out infinite;
+  animation: idle1 6.7s ease-in-out infinite;
 }
 
 .p-3b {
-  animation: idle3 7.9s ease-in-out infinite;
+  animation: idle3 5.9s ease-in-out infinite;
 }
 
 .p-1b {
-  animation: idle2 9.0s ease-in-out infinite;
-}
-
-.p-p {
-  animation: idle1 7.6s ease-in-out infinite;
-}
-
-.p-c {
-  animation: idle3 8.4s ease-in-out infinite;
-}
-
-.p-bench {
   animation: idle2 7.3s ease-in-out infinite;
 }
 
-/* タイミングをずらす */
+/* 投手：落ち着いた動き */
+.p-p {
+  animation: idle1 6.9s ease-in-out infinite;
+}
+
+/* 捕手：少し大きめの重心移動 */
+.p-c {
+  animation: idle3 5.4s ease-in-out infinite;
+}
+
+/* 控え：控えめな動き */
+.p-bench {
+  animation: idle2 7.0s ease-in-out infinite;
+}
+
+/* 動きのタイミングを個別にずらす */
 .p-cf { animation-delay: -2.1s; }
 .p-lf { animation-delay: -4.6s; }
 .p-rf { animation-delay: -1.3s; }
@@ -90,67 +95,81 @@
 .p-3b { animation-delay: -0.8s; }
 .p-1b { animation-delay: -6.1s; }
 .p-p  { animation-delay: -2.8s; }
-.p-c  { animation-delay: -7.0s; }
+.p-c  { animation-delay: -3.5s; }
 .p-bench { animation-delay: -3.9s; }
 
-/* ゆっくり左右へ重心移動 */
+/* 左右に重心移動 */
 @keyframes idle1 {
   0%, 100% {
     translate: 0 0;
     rotate: 0deg;
   }
+
   25% {
-    translate: 1.2px -0.3px;
-    rotate: 0.65deg;
+    translate: 2px -0.5px;
+    rotate: 1deg;
   }
+
   50% {
     translate: 0 0;
     rotate: 0deg;
   }
+
   75% {
-    translate: -1px 0;
-    rotate: -0.55deg;
+    translate: -2px 0.5px;
+    rotate: -0.8deg;
   }
 }
 
-/* 少し大きめの重心移動 */
+/* 逆方向の重心移動 */
 @keyframes idle2 {
   0%, 100% {
     translate: 0 0;
     rotate: 0deg;
   }
+
   30% {
-    translate: -1.4px -0.5px;
-    rotate: -0.7deg;
+    translate: -2.5px -0.8px;
+    rotate: -1.2deg;
   }
+
   60% {
-    translate: 0.7px 0;
-    rotate: 0.35deg;
+    translate: 1.5px 0.5px;
+    rotate: 0.7deg;
   }
+
   80% {
-    translate: 1px 0;
-    rotate: 0.5deg;
+    translate: 2px 0;
+    rotate: 0.9deg;
   }
 }
 
-/* 微小な上下動を混ぜた動き */
+/* 上下動を少し混ぜた重心移動 */
 @keyframes idle3 {
   0%, 100% {
     translate: 0 0;
     rotate: 0deg;
   }
+
   35% {
-    translate: 1px -0.8px;
-    rotate: 0.5deg;
+    translate: 2px -1.5px;
+    rotate: 1.2deg;
   }
+
   65% {
-    translate: -1.2px 0.2px;
-    rotate: -0.6deg;
+    translate: -2px 0.5px;
+    rotate: -1deg;
   }
 }
 
-/* 動きを抑える設定 */
+/* 動きを抑える設定が有効な場合 */
 @media (prefers-reduced-motion: reduce) {
+  .player {
+    animation: none !important;
+    translate: 0 0 !important;
+    rotate: 0deg !important;
+  }
+}
   .player {
     animation: none !important;
     translate: 0 0 !important;
