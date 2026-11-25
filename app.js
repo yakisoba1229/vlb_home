@@ -46,6 +46,20 @@ function weightedOrder(list, position) {
   }
   return result;
 }
+function getOutfieldScore(player) {
+  if (!player) return 0;
+  const apiMap = window.VLBProfile && typeof window.VLBProfile.getCachedMap === 'function'
+    ? window.VLBProfile.getCachedMap()
+    : null;
+  const apiPlayer = apiMap ? apiMap.get(player.n) : null;
+  if (apiPlayer && apiPlayer.abilities) {
+    const spd = Number(apiPlayer.abilities['走力'] && apiPlayer.abilities['走力'].value) || 0;
+    const def = Number(apiPlayer.abilities['守備'] && apiPlayer.abilities['守備'].value) || 0;
+    const arm = Number(apiPlayer.abilities['肩力'] && apiPlayer.abilities['肩力'].value) || 0;
+    return spd + (def + arm) / 2;
+  }
+  return Number(player.of) || 0;
+}
 function createLineup(players) {
   const result = new Map();
   function solve(positions, remaining) {
@@ -61,7 +75,17 @@ function createLineup(players) {
     }
     return false;
   }
-  return solve([...fieldPositions], [...players]) ? result : null;
+  if (!solve([...fieldPositions], [...players])) return null;
+  const ofPlayers = ['CF', 'RF', 'LF'].map(code => result.get(code)).filter(Boolean);
+  if (ofPlayers.length === 3) {
+    const sorted = ofPlayers
+      .map(p => ({ p, score: getOutfieldScore(p), tie: Math.random() }))
+      .sort((a, b) => (b.score !== a.score ? b.score - a.score : a.tie - b.tie));
+    result.set('CF', sorted[0].p);
+    result.set('RF', sorted[1].p);
+    result.set('LF', sorted[2].p);
+  }
+  return result;
 }
 function getPlate(player) {
   const group = pos => pos === 'P' ? 'p' : pos === 'C' ? 'c' : pos === 'OF' ? 'o' : IF.includes(pos) ? 'i' : null;
@@ -297,7 +321,7 @@ async function init() {
   updateClock(); updateVlbYear(); setupSky();
   setInterval(() => { updateClock(); updateVlbYear(); }, 1000);
   try {
-    const response = await fetch('data/players.json?v=20261124-11');
+    const response = await fetch('data/players.json?v=20261124-13');
     if (!response.ok) throw new Error('選手データ読み込み失敗');
     const players = await response.json(); renderPlayers(players);
   } catch (error) { console.error(error); showToast('選手データの読み込みに失敗しました'); }

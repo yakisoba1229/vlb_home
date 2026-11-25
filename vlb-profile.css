@@ -1,0 +1,880 @@
+/* 選手プロフィールモーダル専用スタイル（既存CSSと競合しないクラス名のみ使用） */
+
+.vlb-profile-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(10px, env(safe-area-inset-top)) 10px max(10px, env(safe-area-inset-bottom));
+  background: rgba(12, 34, 24, 0.68);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.16s ease;
+  overscroll-behavior: contain;
+}
+
+.vlb-profile-backdrop.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* コンパクトなポップアップ */
+.vlb-profile-modal {
+  position: relative;
+  width: min(86vw, 300px);
+  max-height: min(70dvh, 490px);
+  display: flex;
+  flex-direction: column;
+  background: #f8f2df;
+  color: #21342a;
+  border: 3px solid #e7c35a;
+  border-radius: 13px;
+  box-shadow: 0 14px 32px rgba(0, 0, 0, 0.44);
+  overflow: hidden;
+  transform: translateY(8px) scale(0.97);
+  transition: transform 0.18s ease;
+}
+
+.vlb-profile-backdrop.is-open .vlb-profile-modal {
+  transform: translateY(0) scale(1);
+}
+
+/* 評価ランクに応じた最外枠線の色分け＋キラキラ流動演出 */
+.vlb-profile-modal--silver {
+  border: 3px solid transparent;
+  background:
+    linear-gradient(#f8f2df, #f8f2df) padding-box,
+    linear-gradient(
+      125deg,
+      #8e9bab 0%,
+      #e6edf5 22%,
+      #ffffff 38%,
+      #9aa7b8 55%,
+      #eef4fa 76%,
+      #8e9bab 100%
+    ) border-box;
+  background-size: 100% 100%, 240% 240%;
+  animation: vlbBorderShimmer 3.2s linear infinite;
+  box-shadow: 0 0 12px rgba(214, 226, 240, 0.45), 0 12px 28px rgba(15, 28, 38, 0.46);
+}
+
+.vlb-profile-modal--gold {
+  border: 3px solid transparent;
+  background:
+    linear-gradient(#f8f2df, #f8f2df) padding-box,
+    linear-gradient(
+      125deg,
+      #b57e12 0%,
+      #f2cb4c 22%,
+      #fff8c9 38%,
+      #c68f19 56%,
+      #ffe47a 78%,
+      #b57e12 100%
+    ) border-box;
+  background-size: 100% 100%, 240% 240%;
+  animation: vlbBorderShimmer 2.8s linear infinite;
+  box-shadow: 0 0 14px rgba(242, 203, 76, 0.5), 0 12px 30px rgba(42, 30, 0, 0.46);
+}
+
+.vlb-profile-modal--rainbow {
+  border: 3px solid transparent;
+  background:
+    linear-gradient(#f8f2df, #f8f2df) padding-box,
+    linear-gradient(
+      135deg,
+      #ff7eb3 0%,
+      #ffd36e 18%,
+      #80ed99 36%,
+      #6ecbff 54%,
+      #b983ff 72%,
+      #ffffff 84%,
+      #ff7eb3 100%
+    ) border-box;
+  background-size: 100% 100%, 260% 260%;
+  animation: vlbBorderShimmer 2.4s linear infinite;
+  box-shadow: 0 0 16px rgba(185, 131, 255, 0.45), 0 12px 28px rgba(0, 0, 0, 0.45);
+}
+
+.vlb-profile-modal--default {
+  border: 3px solid #e7c35a;
+}
+
+/* ヘッダー（低余白・大きめプレート＋適正ポジション＋隅に小さい種別＋閉じる） */
+.vlb-profile-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  background: linear-gradient(135deg, #153d2b 0%, #1d4e38 100%);
+  color: #fffdf5;
+  border-bottom: 1.5px solid rgba(231, 195, 90, 0.75);
+  flex-shrink: 0;
+}
+
+.vlb-profile-header-main {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+}
+
+.vlb-profile-plate {
+  position: relative;
+  width: 90px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vlb-profile-plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+.vlb-profile-plate-name {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 84%;
+  max-width: 84%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #000000;
+  padding: 0 2px;
+  pointer-events: none;
+}
+
+.vlb-profile-header-meta {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vlb-profile-eyebrow-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-width: 0;
+}
+
+.vlb-profile-eyebrow {
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: #e7c35a;
+  white-space: nowrap;
+}
+
+.vlb-profile-type-corner {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(255, 253, 245, 0.72);
+  border: 1px solid rgba(255, 253, 245, 0.24);
+  border-radius: 3px;
+  padding: 0 3px;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.vlb-profile-position-row {
+  margin: 0;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-width: 0;
+}
+
+.vlb-profile-pos-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: rgba(255, 253, 245, 0.72);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.vlb-profile-position-text {
+  font-size: 0.88rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #ffffff;
+  word-break: break-word;
+}
+
+.vlb-profile-close {
+  width: 30px;
+  height: 30px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(231, 195, 90, 0.55);
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fffdf5;
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vlb-profile-close:active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* スクロール本体（余白最小化） */
+.vlb-profile-body {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+.vlb-profile-section {
+  background: #fffdf5;
+  border: 1px solid #dfd5ba;
+  border-radius: 8px;
+  padding: 6px 7px;
+}
+
+.vlb-profile-section-title {
+  margin: 0 0 5px;
+  padding-bottom: 3px;
+  border-bottom: 1px solid #ece3ca;
+  font-size: 9.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: #153d2b;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vlb-profile-section-title::before {
+  content: "";
+  width: 3px;
+  height: 9px;
+  border-radius: 2px;
+  background: #c89d2d;
+  flex-shrink: 0;
+}
+
+/* B. 評価・総合（見出しなし・低余白） */
+.vlb-profile-eval-layout {
+  display: flex;
+  align-items: stretch;
+  gap: 5px;
+}
+
+.vlb-profile-eval-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: #f5efda;
+  border: 1px solid #e3d7b4;
+  flex-shrink: 0;
+}
+
+.vlb-profile-emblem-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+
+.vlb-profile-emblem-caption {
+  font-size: 8px;
+  font-weight: 700;
+  color: #53665b;
+  line-height: 1.1;
+}
+
+.vlb-profile-eval-emblem {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 46px;
+  height: 25px;
+  padding: 0 7px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+.vlb-profile-eval-emblem::after {
+  content: "";
+  position: absolute;
+  top: -40%;
+  left: -75%;
+  width: 55%;
+  height: 180%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 35%,
+    rgba(255, 255, 255, 0.85) 50%,
+    rgba(255, 255, 255, 0.15) 65%,
+    transparent 100%
+  );
+  transform: skewX(-20deg);
+  animation: vlbSparkleSweep 2.6s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.vlb-profile-eval-emblem::before {
+  content: "✦";
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 6.5px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.92);
+  text-shadow: 0 0 4px #ffffff;
+  animation: vlbSparkleTwinkle 1.6s ease-in-out infinite alternate;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.vlb-profile-eval-text {
+  position: relative;
+  z-index: 1;
+  font-size: 0.88rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  line-height: 1;
+}
+
+.vlb-profile-eval-emblem--silver {
+  background: linear-gradient(145deg, #f3f6f9 0%, #c8d2de 48%, #8e9bab 100%);
+  border: 1.5px solid #7c8999;
+}
+
+.vlb-profile-eval-emblem--silver .vlb-profile-eval-text {
+  background: linear-gradient(90deg, #1b2733 0%, #586c80 35%, #ffffff 50%, #4b5e70 65%, #1b2733 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.65));
+  animation: vlbTextShimmer 2.8s linear infinite;
+}
+
+.vlb-profile-eval-emblem--gold {
+  background: linear-gradient(145deg, #fff3b0 0%, #e9bd43 50%, #b57e12 100%);
+  border: 1.5px solid #91630b;
+}
+
+.vlb-profile-eval-emblem--gold .vlb-profile-eval-text {
+  background: linear-gradient(90deg, #3b2400 0%, #7c5100 32%, #fffbe0 50%, #7c5100 68%, #3b2400 100%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(255, 244, 185, 0.75));
+  animation: vlbTextShimmer 2.4s linear infinite;
+}
+
+.vlb-profile-eval-emblem--rainbow {
+  background: linear-gradient(
+    130deg,
+    #ff96ba 0%,
+    #ffe084 24%,
+    #9df0c6 48%,
+    #7ec8ff 74%,
+    #cca3ff 100%
+  );
+  border: 1.5px solid #7b66a8;
+}
+
+.vlb-profile-eval-emblem--rainbow .vlb-profile-eval-text {
+  background: linear-gradient(
+    90deg,
+    #4c1d95 0%,
+    #be185d 25%,
+    #ffffff 50%,
+    #0369a1 75%,
+    #4c1d95 100%
+  );
+  background-size: 240% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.85));
+  animation: vlbTextShimmer 2.1s linear infinite;
+}
+
+.vlb-profile-eval-emblem--default {
+  background: linear-gradient(145deg, #275841 0%, #153d2b 100%);
+  border: 1.5px solid #0e2a1d;
+}
+
+.vlb-profile-eval-emblem--default .vlb-profile-eval-text {
+  color: #fffdf5;
+}
+
+/* 評価の隣の pt 表示（表記なし・小さめ） */
+.vlb-profile-pt-value {
+  font-size: 0.78rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: #153d2b;
+  white-space: nowrap;
+}
+
+.vlb-profile-pt-value--muted {
+  color: #6c7a72;
+  font-weight: 700;
+}
+
+/* 右側スペース：投打・頑丈・特訓（左詰め・右に余白を残す） */
+.vlb-profile-meta-right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: 4px 6px;
+  border-radius: 7px;
+  background: #f8f4e6;
+  border: 1px solid #ebe2c8;
+}
+
+.vlb-profile-meta-line {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  font-size: 9.5px;
+  line-height: 1.15;
+}
+
+.vlb-profile-meta-key {
+  color: #5d6c63;
+  font-weight: 700;
+  min-width: 22px;
+  white-space: nowrap;
+}
+
+.vlb-profile-meta-val {
+  color: #21342a;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.vlb-profile-meta-val--muted {
+  color: #6c7a72;
+  font-weight: 700;
+}
+
+/* 能力・頑丈 共通ランクバッジ（見やすい暗背景＋文字自体を色付け＋キラキラ演出） */
+.vlb-profile-rank-badge {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  height: 16px;
+  padding: 0 3px;
+  border-radius: 4px;
+  background: #101b16;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  overflow: hidden;
+  line-height: 1;
+}
+
+.vlb-profile-rank-badge--small {
+  min-width: 20px;
+  height: 15px;
+  padding: 0 3px;
+}
+
+.vlb-profile-rank-badge::after {
+  content: "";
+  position: absolute;
+  top: -30%;
+  left: -80%;
+  width: 50%;
+  height: 160%;
+  background: linear-gradient(
+    110deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.08) 35%,
+    rgba(255, 255, 255, 0.44) 50%,
+    rgba(255, 255, 255, 0.08) 65%,
+    transparent 100%
+  );
+  transform: skewX(-18deg);
+  animation: vlbSparkleSweep 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.vlb-profile-rank-letter {
+  position: relative;
+  z-index: 1;
+  font-size: 9.5px;
+  font-weight: 900;
+  letter-spacing: 0.01em;
+  background-image: linear-gradient(
+    100deg,
+    var(--rank-color, #92a0b6) 0%,
+    var(--rank-color, #92a0b6) 34%,
+    #ffffff 50%,
+    var(--rank-color, #92a0b6) 66%,
+    var(--rank-color, #92a0b6) 100%
+  );
+  background-size: 230% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.22));
+  animation: vlbTextShimmer 2.5s linear infinite;
+}
+
+/* S 能力はメタリックシルバー寄り */
+.vlb-profile-rank-badge--s .vlb-profile-rank-letter {
+  background-image: linear-gradient(
+    95deg,
+    #8fa0b3 0%,
+    #cbd6e2 30%,
+    #ffffff 48%,
+    #9fb0c2 68%,
+    #e2eaf2 100%
+  );
+  background-size: 230% auto;
+  filter: drop-shadow(0 0 2.5px rgba(203, 214, 226, 0.45));
+}
+
+/* SSS 能力は虹キラキラ文字 */
+.vlb-profile-rank-badge--sss .vlb-profile-rank-letter {
+  background-image: linear-gradient(
+    90deg,
+    #ff96ba 0%,
+    #ffe084 22%,
+    #9df0c6 44%,
+    #ffffff 55%,
+    #7ec8ff 72%,
+    #cca3ff 100%
+  );
+  background-size: 240% auto;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.45));
+}
+
+.vlb-profile-rank-badge--small .vlb-profile-rank-letter {
+  font-size: 9px;
+}
+
+.vlb-profile-rank-badge--empty {
+  background: #e5decb;
+  border-color: #d0c6ac;
+}
+
+.vlb-profile-rank-badge--empty::after {
+  display: none;
+}
+
+.vlb-profile-rank-badge--empty .vlb-profile-rank-letter {
+  background: none;
+  color: #6c7a72;
+  filter: none;
+  animation: none;
+}
+
+/* C. 能力（濃いダーク背景＋明るい文字＋光るゲージバー＋21超オーバーフロー） */
+.vlb-profile-section--abilities {
+  background: linear-gradient(180deg, #16241d 0%, #101b16 100%);
+  border-color: #2c4639;
+  color: #edf4ef;
+}
+
+.vlb-profile-section--abilities .vlb-profile-empty-note {
+  color: #b4c4ba;
+}
+
+.vlb-profile-ability-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4.5px;
+}
+
+.vlb-profile-ability-row {
+  display: grid;
+  grid-template-columns: 42px 30px 1fr 42px;
+  align-items: center;
+  gap: 5px;
+}
+
+.vlb-profile-ability-name {
+  font-size: 10px;
+  font-weight: 700;
+  color: #dce8df;
+  white-space: nowrap;
+}
+
+.vlb-profile-ability-track-wrap {
+  padding-right: 10px;
+}
+
+.vlb-profile-ability-track {
+  position: relative;
+  width: 100%;
+  height: 8.5px;
+  border-radius: 999px;
+  background: #0a120e;
+  border: 1px solid #30473b;
+  overflow: visible;
+}
+
+.vlb-profile-ability-fill {
+  position: relative;
+  height: 100%;
+  border-radius: 999px;
+  overflow: hidden;
+  transition: width 0.22s ease;
+  box-shadow:
+    0 0 7px var(--bar-color, rgba(255, 255, 255, 0.4)),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.vlb-profile-ability-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.65) 50%,
+    transparent 100%
+  );
+  animation: vlbBarShine 2.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.vlb-profile-ability-fill--overflow {
+  box-shadow:
+    0 0 10px var(--bar-color, rgba(231, 165, 34, 0.85)),
+    0 0 4px rgba(255, 255, 255, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.vlb-profile-ability-value {
+  text-align: right;
+  font-size: 10.5px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: #fff4d2;
+  white-space: nowrap;
+}
+
+/* D. 特殊能力 */
+.vlb-profile-special-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.vlb-profile-special-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  border: 1px solid transparent;
+}
+
+.vlb-profile-special-chip--good {
+  background: #e3f0ff;
+  border-color: #96c2f5;
+  color: #16498a;
+}
+
+.vlb-profile-special-chip--bad {
+  background: #fde8e8;
+  border-color: #f0a8a8;
+  color: #9c1f28;
+}
+
+.vlb-profile-special-chip--neutral {
+  background: #f2ecda;
+  border-color: #d6cba8;
+  color: #49564e;
+}
+
+/* E. 成長履歴（テーブル） */
+.vlb-profile-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.vlb-profile-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9.5px;
+  font-variant-numeric: tabular-nums;
+}
+
+.vlb-profile-table th,
+.vlb-profile-table td {
+  padding: 3px 4px;
+  border-bottom: 1px solid #ece3ca;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.vlb-profile-table th {
+  font-weight: 800;
+  color: #45594d;
+  background: #f6f0dc;
+}
+
+.vlb-profile-table tr:last-child td {
+  border-bottom: 0;
+}
+
+/* F. タイトル */
+.vlb-profile-title-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.vlb-profile-title-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 3px 5px;
+  border-radius: 5px;
+  background: #f8f4e6;
+  border: 1px solid #ebe2c8;
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #21342a;
+}
+
+.vlb-profile-title-sub {
+  font-size: 8.5px;
+  color: #5d6c63;
+  white-space: nowrap;
+}
+
+.vlb-profile-empty-note {
+  margin: 0;
+  font-size: 9.5px;
+  color: #6b7870;
+}
+
+/* 読み込み中・エラーカード */
+.vlb-profile-card {
+  background: #fffdf5;
+  border: 1px solid #dfd5ba;
+  border-radius: 8px;
+  padding: 9px;
+}
+
+.vlb-profile-status-label {
+  margin: 0 0 3px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #153d2b;
+}
+
+.vlb-profile-status-text {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.45;
+  color: #354a3e;
+}
+
+.vlb-profile-error {
+  border-color: #d8a5a5;
+  background: #fff6f6;
+}
+
+.vlb-profile-error .vlb-profile-status-label {
+  color: #8a2c2c;
+}
+
+@keyframes vlbSparkleSweep {
+  0% {
+    left: -80%;
+  }
+  45%,
+  100% {
+    left: 145%;
+  }
+}
+
+@keyframes vlbSparkleTwinkle {
+  0% {
+    opacity: 0.25;
+    transform: scale(0.75) rotate(0deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.2) rotate(20deg);
+  }
+}
+
+@keyframes vlbTextShimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 230% 50%;
+  }
+}
+
+@keyframes vlbBorderShimmer {
+  0% {
+    background-position: 0 0, 0% 50%;
+  }
+  100% {
+    background-position: 0 0, 240% 50%;
+  }
+}
+
+@keyframes vlbBarShine {
+  0% {
+    left: -60%;
+  }
+  45%,
+  100% {
+    left: 135%;
+  }
+}

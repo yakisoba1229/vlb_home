@@ -1,0 +1,820 @@
+/* 選手一覧ページ専用スタイル（既存ホーム・プロフィールCSSと非干渉） */
+
+.vlb-players-view {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  /* 左右均等に背景スペースを余らせる */
+  padding: 6px 14px 8px;
+  background:
+    repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.018) 0px,
+      rgba(255, 255, 255, 0.018) 18px,
+      rgba(0, 0, 0, 0.04) 18px,
+      rgba(0, 0, 0, 0.04) 36px
+    ),
+    linear-gradient(180deg, #0b2419 0%, #103223 48%, #091d14 100%);
+  color: #21342a;
+  overflow: hidden;
+}
+
+/* 将来の球場背景用の外周演出（ナイトゲームの照明・芝・淡い光） */
+.vlb-players-view::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 35% at 10% 0%, rgba(255, 244, 195, 0.18) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 35% at 90% 0%, rgba(214, 240, 255, 0.16) 0%, transparent 70%),
+    radial-gradient(ellipse 80% 45% at 50% 105%, rgba(62, 165, 108, 0.2) 0%, transparent 70%);
+  animation: vlbStadiumLights 7s ease-in-out infinite alternate;
+  z-index: 0;
+}
+
+.vlb-players-view::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 18% 22%, rgba(255, 232, 150, 0.16) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 82% 30%, rgba(255, 255, 255, 0.16) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 12% 76%, rgba(231, 195, 90, 0.14) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 90% 82%, rgba(255, 255, 255, 0.14) 0 1px, transparent 1.5px);
+  background-size: 140px 140px;
+  opacity: 0.72;
+  z-index: 0;
+}
+
+.vlb-players-view[hidden] {
+  display: none !important;
+}
+
+/* ホーム共通の天候・日時パネル */
+.vlb-players-view > .sky-panel.vlb-sky-in-players {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 680px;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.34);
+}
+
+/* 外周の背景余白の内側に収まるメイン枠（横幅を絞って左右均等に背景スペースを確保） */
+.vlb-players-shell {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  max-width: 304px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  background: #f8f2df;
+  border: 1.5px solid #d5caa8;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.38);
+}
+
+/* 上部コントロールバー（野手・投手タブ＋絞り込み/並び替えトグル＋リセット） */
+.vlb-players-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 3px 5px;
+  background: #153d2b;
+  border-bottom: 1px solid rgba(231, 195, 90, 0.65);
+  flex-shrink: 0;
+}
+
+.vlb-players-tabs {
+  display: inline-flex;
+  background: rgba(0, 0, 0, 0.28);
+  padding: 1.5px;
+  border-radius: 6px;
+  border: 1px solid rgba(231, 195, 90, 0.35);
+}
+
+.vlb-players-tab {
+  border: 0;
+  background: transparent;
+  color: #d6e2d9;
+  font-size: 10.5px;
+  font-weight: 800;
+  padding: 2.5px 9px;
+  border-radius: 4.5px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vlb-players-tab.is-active {
+  background: #e7c35a;
+  color: #153d2b;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+}
+
+.vlb-players-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vlb-players-btn {
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  background: rgba(255, 255, 255, 0.12);
+  color: #fffdf5;
+  font-size: 9.5px;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vlb-players-btn.is-active {
+  background: #f8f2df;
+  color: #153d2b;
+  border-color: #e7c35a;
+}
+
+.vlb-players-btn--reset {
+  border-color: rgba(231, 195, 90, 0.55);
+  color: #ffe89e;
+}
+
+/* フリーワード検索＋投打（右・左）クイックバー */
+.vlb-players-quickbar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 5px;
+  background: #efe7cf;
+  border-bottom: 1px solid #ddd2b3;
+  flex-shrink: 0;
+}
+
+.vlb-players-search {
+  flex: 1;
+  min-width: 0;
+  height: 22px;
+  padding: 0 6px;
+  border: 1px solid #cbbda0;
+  border-radius: 5px;
+  background: #fffdf7;
+  color: #21342a;
+  font-size: 10px;
+  font-weight: 700;
+  outline: none;
+}
+
+.vlb-players-search:focus {
+  border-color: #153d2b;
+  background: #ffffff;
+}
+
+.vlb-players-search::placeholder {
+  color: #7c8981;
+  font-weight: 600;
+}
+
+.vlb-players-hand-seg {
+  display: inline-flex;
+  align-items: center;
+  background: #e1d7ba;
+  border: 1px solid #cbbda0;
+  border-radius: 5px;
+  padding: 1px;
+  flex-shrink: 0;
+}
+
+.vlb-players-hand-btn {
+  border: 0;
+  background: transparent;
+  color: #46594d;
+  font-size: 9px;
+  font-weight: 800;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vlb-players-hand-btn.is-active {
+  background: #153d2b;
+  color: #fffdf5;
+}
+
+/* 極小条件サマリー帯 */
+.vlb-players-summary-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 5px;
+  padding: 2px 5px;
+  background: #f5efdc;
+  border-bottom: 1px solid #e2d8bc;
+  font-size: 8px;
+  line-height: 1.2;
+  color: #485b50;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.vlb-players-summary-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.vlb-players-count {
+  white-space: nowrap;
+  color: #153d2b;
+  font-weight: 800;
+}
+
+/* 絞り込み・並び替えパネル */
+.vlb-players-controls {
+  padding: 5px;
+  background: #f4ecd4;
+  border-bottom: 1.5px solid #d5caa8;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 44vh;
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.vlb-players-controls[hidden] {
+  display: none !important;
+}
+
+.vlb-players-control-group {
+  background: #fffdf5;
+  border: 1px solid #dfd5ba;
+  border-radius: 6px;
+  padding: 5px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vlb-players-control-title {
+  margin: 0;
+  font-size: 9px;
+  font-weight: 800;
+  color: #153d2b;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.vlb-players-control-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.vlb-players-field {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vlb-players-field label {
+  font-size: 8px;
+  font-weight: 700;
+  color: #55675c;
+}
+
+.vlb-players-select {
+  width: 100%;
+  min-width: 0;
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid #cbbda0;
+  border-radius: 5px;
+  background: #fff;
+  color: #21342a;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.vlb-players-ability-filters {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+}
+
+.vlb-players-ability-filter-item {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.vlb-players-ability-filter-item label {
+  font-size: 7.5px;
+  font-weight: 800;
+  color: #364a3e;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.vlb-players-ability-filter-item select {
+  width: 100%;
+  height: 22px;
+  padding: 0 1px;
+  border: 1px solid #cbbda0;
+  border-radius: 4px;
+  background: #fff;
+  color: #21342a;
+  font-size: 8.5px;
+  font-weight: 700;
+}
+
+/* 並び替え方向・複数能力合計チェック */
+.vlb-players-sort-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.vlb-players-sort-row .vlb-players-field {
+  flex: 1;
+}
+
+.vlb-players-dir-group {
+  display: inline-flex;
+  border: 1px solid #cbbda0;
+  border-radius: 5px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.vlb-players-dir-btn {
+  border: 0;
+  background: #fff;
+  color: #4d5f54;
+  font-size: 9px;
+  font-weight: 800;
+  height: 24px;
+  padding: 0 7px;
+  cursor: pointer;
+}
+
+.vlb-players-dir-btn.is-active {
+  background: #153d2b;
+  color: #fffdf5;
+}
+
+.vlb-players-sum-box {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding-top: 2px;
+}
+
+.vlb-players-sum-box[hidden] {
+  display: none !important;
+}
+
+.vlb-players-sum-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: #f5efda;
+  border: 1px solid #d5c8a5;
+  font-size: 8.5px;
+  font-weight: 800;
+  color: #21342a;
+  cursor: pointer;
+}
+
+.vlb-players-sum-chip input {
+  margin: 0;
+  accent-color: #153d2b;
+}
+
+/*
+ * 1段目共通グリッド列定義（ポジ / プレート / 評価+pt / 5能力）
+ * ・ポジ幅固定によりサブポジ有無を問わずプレート開始位置を完全統一
+ * ・能力幅固定により選手ごとに能力欄の開始・終了位置がズレない
+ * ・中央に小さく詰める
+ */
+.vlb-players-col-header {
+  display: grid;
+  grid-template-columns: 35px 44px 54px 116px;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  background: #1d4a35;
+  color: #eef5ef;
+  border-bottom: 1px solid #133525;
+  font-size: 7.5px;
+  font-weight: 800;
+  line-height: 1.25;
+  flex-shrink: 0;
+}
+
+.vlb-players-col-pos {
+  text-align: left;
+  white-space: nowrap;
+}
+
+.vlb-players-col-plate {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.vlb-players-col-eval {
+  text-align: center;
+  white-space: nowrap;
+}
+
+.vlb-players-col-abilities {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5px;
+  text-align: center;
+}
+
+.vlb-players-col-abilities span {
+  white-space: nowrap;
+}
+
+/* 一覧リスト（1画面に最大限多くの選手が収まる超高密度設計） */
+.vlb-players-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 3px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.vlb-players-card {
+  width: 100%;
+  text-align: left;
+  border: 1px solid #ddd2b6;
+  border-radius: 5px;
+  background: #fffdf5;
+  padding: 2px 3px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5px;
+  cursor: pointer;
+  color: inherit;
+  font-family: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.vlb-players-card:active {
+  background: #f3ecd5;
+  border-color: #c89d2d;
+}
+
+/* 1段目：ポジ | プレート | 評価 pt | 5能力 */
+.vlb-players-row1 {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 35px 44px 54px 116px;
+  justify-content: center;
+  align-items: center;
+  gap: 2px;
+}
+
+.vlb-players-pos-cell {
+  width: 100%;
+  min-width: 0;
+  font-size: 7px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.04em;
+  color: #153d2b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-align: left;
+}
+
+/* ホーム画面と同等縦横比（73:30）を保って縮小 */
+.vlb-players-plate {
+  position: relative;
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vlb-players-plate img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+}
+
+.vlb-players-plate-name {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 84%;
+  max-width: 84%;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  text-align: center;
+  font-size: 7.5px;
+  font-weight: 800;
+  line-height: 1.05;
+  color: #000000;
+  padding: 0 1px;
+  pointer-events: none;
+}
+
+/* 評価 + pt（中央に小さく詰める） */
+.vlb-players-eval-pt {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.vlb-players-eval-mini {
+  height: 12.5px;
+  min-width: 19px;
+  padding: 0 2.5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.vlb-players-eval-mini::before {
+  display: none;
+}
+
+.vlb-players-eval-mini .vlb-profile-eval-text {
+  font-size: 7px;
+  letter-spacing: 0.01em;
+}
+
+.vlb-players-pt {
+  font-size: 7px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.02em;
+  color: #153d2b;
+  white-space: nowrap;
+}
+
+/* 右側固定5列（全選手で幅・開始/終了位置統一） */
+.vlb-players-abilities {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1.5px;
+  align-items: center;
+}
+
+.vlb-players-abilities .vlb-profile-rank-badge {
+  width: 100%;
+  min-width: 0;
+  height: 14px;
+  padding: 0;
+  border-radius: 3px;
+}
+
+.vlb-players-abilities .vlb-profile-rank-letter {
+  font-size: 7.5px;
+}
+
+/*
+ * 一覧ページのパフォーマンス最適化：
+ * - 総合評価のキラキラは X / XI / XII のみ（S / SS / SSS は静止銀表示）
+ * - 能力（頑丈含む）のキラキラは S- 以上のみ（G〜A+ は静止カラー表示）
+ * ※ プロフィールモーダル内は一切影響しない
+ */
+.vlb-players-view .vlb-profile-eval-emblem--silver::before,
+.vlb-players-view .vlb-profile-eval-emblem--silver::after,
+.vlb-players-view .vlb-profile-eval-emblem--default::before,
+.vlb-players-view .vlb-profile-eval-emblem--default::after {
+  display: none;
+  animation: none;
+}
+
+.vlb-players-view .vlb-profile-eval-emblem--silver .vlb-profile-eval-text {
+  animation: none;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: #1b2733;
+  filter: none;
+}
+
+.vlb-players-view .vlb-profile-rank-badge:not(.vlb-profile-rank-badge--high)::after {
+  display: none;
+  animation: none;
+}
+
+.vlb-players-view .vlb-profile-rank-badge:not(.vlb-profile-rank-badge--high) .vlb-profile-rank-letter {
+  animation: none;
+  background: none;
+  -webkit-background-clip: initial;
+  background-clip: initial;
+  color: var(--rank-color, #92a0b6);
+  filter: none;
+}
+
+/* 2段目（上段より小さい・全選手共通で必ず表示）：頑丈 + 投打 + 特能 */
+.vlb-players-row2 {
+  width: 100%;
+  max-width: 255px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding-top: 1.5px;
+  border-top: 1px dashed #ece3ca;
+  line-height: 1.1;
+}
+
+.vlb-players-dur-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 1px;
+  font-size: 6.5px;
+  font-weight: 700;
+  color: #55675c;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.vlb-players-dur-wrap .vlb-profile-rank-badge {
+  min-width: 12px;
+  height: 11px;
+  padding: 0 1.5px;
+  border-radius: 2.5px;
+}
+
+.vlb-players-dur-wrap .vlb-profile-rank-letter {
+  font-size: 6.5px;
+}
+
+.vlb-players-hand {
+  font-size: 6.5px;
+  font-weight: 700;
+  color: #465a4e;
+  white-space: nowrap;
+  flex-shrink: 0;
+  margin-right: 1px;
+}
+
+.vlb-players-sp-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 2.5px;
+  border-radius: 2.5px;
+  font-size: 6.5px;
+  font-weight: 700;
+  line-height: 1.25;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+
+.vlb-players-sp-chip--more {
+  background: #e8e1cc;
+  border-color: #ccc09e;
+  color: #36493e;
+  font-weight: 800;
+}
+
+.vlb-players-empty {
+  padding: 20px 10px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #5b6c62;
+}
+
+@keyframes vlbStadiumLights {
+  0% {
+    opacity: 0.72;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@media (min-width: 700px) {
+  .vlb-players-view {
+    padding: 12px 36px;
+    gap: 10px;
+  }
+
+  .vlb-players-shell {
+    max-width: 420px;
+  }
+
+  .vlb-players-col-header,
+  .vlb-players-row1 {
+    grid-template-columns: 44px 58px 68px 156px;
+    gap: 4px;
+  }
+
+  .vlb-players-row2 {
+    max-width: 338px;
+    gap: 3px;
+  }
+
+  .vlb-players-pos-cell {
+    font-size: 8.5px;
+  }
+
+  .vlb-players-plate {
+    width: 58px;
+  }
+
+  .vlb-players-plate-name {
+    font-size: 9px;
+  }
+
+  .vlb-players-eval-mini {
+    height: 14px;
+    min-width: 22px;
+  }
+
+  .vlb-players-eval-mini .vlb-profile-eval-text {
+    font-size: 8px;
+  }
+
+  .vlb-players-pt {
+    font-size: 8.5px;
+  }
+
+  .vlb-players-abilities {
+    gap: 2.5px;
+  }
+
+  .vlb-players-abilities .vlb-profile-rank-badge {
+    height: 16px;
+  }
+
+  .vlb-players-abilities .vlb-profile-rank-letter {
+    font-size: 8.5px;
+  }
+
+  .vlb-players-col-header {
+    font-size: 8.5px;
+  }
+
+  .vlb-players-dur-wrap,
+  .vlb-players-hand,
+  .vlb-players-sp-chip {
+    font-size: 7.5px;
+  }
+}
+
+@media (max-width: 350px) {
+  .vlb-players-view {
+    padding: 5px 12px 7px;
+  }
+
+  .vlb-players-col-header,
+  .vlb-players-row1 {
+    grid-template-columns: 33px 42px 50px 110px;
+    gap: 1.5px;
+  }
+
+  .vlb-players-row2 {
+    max-width: 239.5px;
+  }
+
+  .vlb-players-plate {
+    width: 42px;
+  }
+}

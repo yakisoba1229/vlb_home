@@ -5,16 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="theme-color" content="#123d2c">
   <title>プランクトンのたまご</title>
-  <link rel="stylesheet" href="style.css?v=20261124-12">
+  <meta name="description" content="VLB 野球チーム「プランクトンのたまご」公式サイト">
+  <meta property="og:title" content="プランクトンのたまご">
+  <meta property="og:description" content="VLB 野球チーム「プランクトンのたまご」公式サイト">
+  <meta property="og:type" content="website">
+  <link rel="stylesheet" href="style.css?v=20261124-14">
+  <link rel="stylesheet" href="vlb-profile.css?v=20261124-7">
+  <link rel="stylesheet" href="vlb-players.css?v=20261124-3">
 </head>
 <body>
   <main class="site">
     <header class="topbar">
       <div class="team-mark">🌙</div>
-      <div class="brand-text"><h1>プランクトンのたまご</h1><p>BASEBALL CLUB</p></div>
+      <div class="brand-text"><h1>プランクトンのたまご</h1><p>VLB BASEBALL CLUB</p></div>
       <button class="menu" aria-label="メニュー" id="menuBtn">☰</button>
     </header>
-
     <section class="stadium-wrap" aria-label="球場ホーム画面">
       <section class="sky-panel" id="skyPanel" aria-label="天候・時間情報">
         <div class="sky-date-time"><div id="realDate">--</div><div id="realClock">--:--</div></div>
@@ -27,21 +32,21 @@
         <div class="sky-caption"><span id="weatherName">晴れ</span><span id="dayNightName">昼</span></div>
         <div class="vlb-year" id="vlbYear">VLB 544年</div>
       </section>
-
       <div class="stadium" id="stadium" aria-label="球場と選手"></div>
       <div class="stadium-footer"><div class="footer-caption">プランクトンのたまご</div></div>
     </section>
-
-
     <nav class="bottom-nav">
       <button class="active" data-page="ホーム">🏟️<small>ホーム</small></button>
       <button data-page="選手一覧">👥<small>選手</small></button>
       <button data-page="チーム">📋<small>チーム</small></button>
-      <button data-page="成績">📊<small>成績</small></button>
+      <button data-page="成長">📈<small>成長</small></button>
+      <button data-page="対戦">⚔️<small>対戦</small></button>
       <button data-page="記録">📖<small>記録</small></button>
     </nav>
   </main>
   <div class="toast" id="toast" role="status"></div>
-  <script src="app.js?v=20261124-12"></script>
+  <script src="app.js?v=20261124-13"></script>
+  <script src="vlb-profile.js?v=20261124-8"></script>
+  <script src="vlb-players.js?v=20261124-3"></script>
 </body>
 </html>

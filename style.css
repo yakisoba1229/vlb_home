@@ -2,12 +2,12 @@
 *{box-sizing:border-box}
 html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;background:#e9e5d7;color:var(--ink)}
 .site{min-height:100svh;display:flex;flex-direction:column;max-width:900px;margin:auto;background:var(--cream);box-shadow:0 0 30px #0001}
-.topbar{display:flex;align-items:center;gap:12px;padding:12px 16px;background:var(--deep);color:#fff;z-index:2;flex-shrink:0}
-.team-mark{width:44px;height:44px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:23px;flex-shrink:0}
-.brand-text h1{font-size:1.05rem;margin:0;font-weight:800;letter-spacing:.03em}.brand-text p{font-size:.65rem;letter-spacing:.18em;margin:2px 0 0;color:#c9d8cc}
-.menu{margin-left:auto;background:#ffffff18;border:1px solid #ffffff30;color:white;border-radius:10px;font-size:20px;padding:8px 12px}
+.topbar{display:flex;align-items:center;gap:8px;padding:5px 12px;background:var(--deep);color:#fff;z-index:2;flex-shrink:0}
+.team-mark{width:26px;height:26px;border:1.5px solid var(--gold);border-radius:50%;display:grid;place-items:center;font-size:14px;flex-shrink:0}
+.brand-text h1{font-size:.86rem;line-height:1.1;margin:0;font-weight:800;letter-spacing:.03em}.brand-text p{font-size:.52rem;line-height:1;letter-spacing:.14em;margin:1px 0 0;color:#c9d8cc}
+.menu{margin-left:auto;background:#ffffff18;border:1px solid #ffffff30;color:white;border-radius:7px;font-size:14px;padding:3px 9px}
 /* 球場エリアを縦方向に積む。前回の崩れはflexが横並びのまま3要素を縮めていたことが原因 */
-.stadium-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#102f22;overflow:hidden;padding:0;gap:0}
+.stadium-wrap{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;background:#102f22;overflow:hidden;padding:0;gap:0}
 .sky-panel{position:relative;width:100%;height:clamp(135px,20vh,210px);flex-shrink:0;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:8px 12px 6px;color:#f8f3e5;background:#254b68;transition:background 1.2s ease}
 .sky-panel[data-weather="sunny"]{background:linear-gradient(180deg,#78bfe8,#d5e8ed 78%,#f5d89a)}
 .sky-panel[data-weather="cloudy"]{background:linear-gradient(180deg,#738b9a,#a9bdc5 75%,#c5d0ce)}
@@ -36,17 +36,17 @@ html,body{margin:0;min-height:100%;font-family:system-ui,-apple-system,"Noto San
 .bench-player,.bullpen-player,.batter-player{width:clamp(36px,8.25vw,62px);z-index:3}
 .field-player .player-name{font-size:9px;width:84%;max-width:84%;padding:0 3px}
 .bench-player .player-name,.bullpen-player .player-name,.batter-player .player-name{font-size:7px;width:84%;max-width:84%;padding:0 2px}
-.stadium-footer{width:100%;height:clamp(48px,9vh,90px);flex-shrink:0;display:flex;align-items:center;justify-content:center;background:#102f22;color:#dce8dd}
+.stadium-footer{width:100%;flex:1;min-height:clamp(34px,6vh,72px);display:flex;align-items:center;justify-content:center;background:#102f22;color:#dce8dd}
 .footer-caption{font-size:12px;letter-spacing:.12em;opacity:.75}
-.bottom-nav{display:grid;grid-template-columns:repeat(5,1fr);padding:7px 4px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2;flex-shrink:0}
-.bottom-nav button{border:0;background:transparent;color:#66736a;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px;font-size:18px}.bottom-nav small{font-size:10px}.bottom-nav button.active{color:var(--deep);font-weight:800}
+.bottom-nav{display:grid;grid-template-columns:repeat(6,1fr);padding:6px 2px max(8px,env(safe-area-inset-bottom));background:#fff;border-top:1px solid #d6d0bd;z-index:2;flex-shrink:0}
+.bottom-nav button{border:0;background:transparent;color:#66736a;display:flex;flex-direction:column;align-items:center;gap:2px;padding:3px 1px;font-size:17px}.bottom-nav small{font-size:9.5px;white-space:nowrap}.bottom-nav button.active{color:var(--deep);font-weight:800}
 .toast{position:fixed;left:50%;bottom:82px;transform:translateX(-50%);background:#183d2c;color:#fff;padding:10px 16px;border-radius:20px;box-shadow:0 5px 18px #0003;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90%;text-align:center;font-size:13px;z-index:10}.toast.show{opacity:1}
 @keyframes glow{from{opacity:.72;transform:translate(-50%,-50%) scale(.96)}to{opacity:1;transform:translate(-50%,-50%) scale(1.05)}}
 @keyframes raypulse{from{opacity:.45;transform:translate(-50%,-50%) scale(.9)}to{opacity:.85;transform:translate(-50%,-50%) scale(1.08)}}
 @keyframes cloudmove{from{transform:translateX(0)}to{transform:translateX(calc(100vw + 260px))}}
 @keyframes rainfall{to{transform:translateY(180px)}}@keyframes snowfall{to{transform:translateY(180px) translateX(25px)}}@keyframes twinkle{from{opacity:.25;transform:scale(.7)}to{opacity:1;transform:scale(1.4)}}
-@media(min-width:700px){.stadium-wrap{padding:12px}.stadium{width:min(100%,78vh);border-radius:12px}.sky-panel,.stadium-footer{border-radius:10px}.bottom-nav{padding:10px}.topbar{padding:14px 22px}}
-@media(max-width:500px){.field-player{width:11vw}.bench-player,.bullpen-player,.batter-player{width:8.25vw}.topbar{padding:12px 16px}.sky-panel{height:clamp(135px,19vh,185px)}.stadium-footer{height:clamp(44px,7vh,65px)}}
+@media(min-width:700px){.stadium-wrap{padding:12px}.stadium{width:min(100%,78vh);border-radius:12px}.sky-panel,.stadium-footer{border-radius:10px}.bottom-nav{padding:10px}.topbar{padding:6px 18px}}
+@media(max-width:500px){.field-player{width:11vw}.bench-player,.bullpen-player,.batter-player{width:8.25vw}.topbar{padding:4px 12px}.sky-panel{height:clamp(135px,19vh,185px)}.stadium-footer{min-height:clamp(30px,5vh,56px)}}
 /* 吹き出し：選手を隠しすぎない半透明の表示 */
 .speech-bubble{position:absolute;z-index:8;min-height:20px;max-width:72px;padding:3px 5px;display:flex;align-items:center;justify-content:center;text-align:center;white-space:normal;overflow-wrap:anywhere;font-size:8px;font-weight:700;line-height:1.12;color:#20352a;background:rgba(255,253,242,.62);border:1px solid rgba(60,102,80,.58);border-radius:7px;box-shadow:0 1px 3px #0002;backdrop-filter:blur(1px);transform:translate(-50%,0);pointer-events:none;opacity:0;transition:opacity .3s ease}
 .speech-bubble.bubble-visible{opacity:1}
